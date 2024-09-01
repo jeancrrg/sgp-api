@@ -1,9 +1,6 @@
-package com.nextgen.sgp.domain.dto;
+package com.nextgen.sgp.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -12,27 +9,35 @@ import java.util.Objects;
  * @author Jean Garcia
  */
 @Entity
-@Table(name = "TMARCA")
-public class Marca implements Serializable {
+@Table(name = "TCATEGORIA")
+public class Categoria implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "CODMRC")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "CODCTG")
     private Long codigo;
 
-    @Column(name = "NOMMRC")
+    @Column(name = "NOMCTG")
     private String nome;
 
     @Column(name = "INDATV")
     private Boolean indicadorAtivo;
 
-    public Marca() {
+    @ManyToOne
+    @JoinColumn(name = "CODDPT", referencedColumnName = "CODDPT")
+    private Departamento departamento;
+
+    public Categoria() {
 
     }
 
-    public Marca(Long codigo, String nome, Boolean indicadorAtivo) {
+    public Categoria(Long codigo, String nome, Boolean indicadorAtivo, Departamento departamento) {
         this.codigo = codigo;
         this.nome = nome;
         this.indicadorAtivo = indicadorAtivo;
+        this.departamento = departamento;
     }
 
     public Long getCodigo() {
@@ -59,12 +64,20 @@ public class Marca implements Serializable {
         this.indicadorAtivo = indicadorAtivo;
     }
 
+    public Departamento getDepartamento() {
+        return departamento;
+    }
+
+    public void setDepartamento(Departamento departamento) {
+        this.departamento = departamento;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Marca marca = (Marca) o;
-        return Objects.equals(codigo, marca.codigo);
+        Categoria categoria = (Categoria) o;
+        return Objects.equals(codigo, categoria.codigo);
     }
 
     @Override

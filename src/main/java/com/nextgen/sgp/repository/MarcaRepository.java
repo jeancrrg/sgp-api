@@ -1,6 +1,6 @@
 package com.nextgen.sgp.repository;
 
-import com.nextgen.sgp.domain.dto.Marca;
+import com.nextgen.sgp.domain.Marca;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -11,9 +11,15 @@ public interface MarcaRepository extends JpaRepository<Marca, Long> {
     @Query("SELECT mrc " +
             " FROM Marca mrc " +
             "WHERE 1=1 " +
-            "  AND (:codigoMarca IS NULL OR mrc.codigo = :codigoMarca) " +
-            "  AND (:nomeMarca IS NULL OR mrc.nome LIKE :nomeMarca) " +
+            "  AND (:codigo IS NULL OR mrc.codigo = :codigo) " +
+            "  AND (:nome IS NULL OR mrc.nome LIKE :nome) " +
             "  AND (:indicadorAtivo IS NULL OR mrc.indicadorAtivo = :indicadorAtivo) ")
-    List<Marca> buscar(Long codigoMarca, String nomeMarca, Boolean indicadorAtivo);
+    List<Marca> buscar(Long codigo, String nome, Boolean indicadorAtivo);
+
+    Marca findByCodigo(Long codigo);
+
+    Boolean existsByCodigo(Long codigo);
+
+    Boolean existsByNome(String nome);
 
 }

@@ -1,6 +1,6 @@
 package com.nextgen.sgp.controller;
 
-import com.nextgen.sgp.domain.dto.Marca;
+import com.nextgen.sgp.domain.Marca;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.service.MarcaService;
 import com.nextgen.sgp.util.LoggerUtil;
@@ -44,32 +44,29 @@ public class MarcaController {
         }
     }
 
-    /*
-    @PostMapping("/{codigoMarca}")
-    public ResponseEntity<?> salvar(@RequestBody Marca marca) {
+    @PutMapping()
+    public ResponseEntity<?> atualizar(@RequestBody Marca marca) {
         try {
-            return ResponseEntity.ok(marcaService.salvar(marca));
+            return ResponseEntity.ok(marcaService.atualizar(marca));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(MarcaController.class, "Erro ao salvar a marca: " + marca.getNome() + "!", "salvar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao salvar a marca: " + marca.getNome() + "!");
+            loggerUtil.error(MarcaController.class, "Erro ao atualizar a marca: " + marca.getNome() + "!", "atualizar", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar a marca: " + marca.getNome() + "!");
         }
     }
-    */
 
-    /*
-    @DeleteMapping("/{codigoMarca}")
-    public ResponseEntity<?> excluir(@PathVariable Long codigoMarca) {
+    @DeleteMapping("/{codigo}")
+    public ResponseEntity<?> inativar(@PathVariable Long codigo) {
         try {
-            return ResponseEntity.ok(marcaService.excluir(codigoMarca));
+            marcaService.inativar(codigo);
+            return ResponseEntity.ok().build();
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(MarcaController.class, "Erro ao salvar a marca: " + marca.getNome() + "!", "salvar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao salvar a marca: " + marca.getNome() + "!");
+            loggerUtil.error(MarcaController.class, "Erro ao inativar a marca: " + codigo + "!", "inativar", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao inativar a marca: " + codigo + "!");
         }
     }
-    */
 
 }
