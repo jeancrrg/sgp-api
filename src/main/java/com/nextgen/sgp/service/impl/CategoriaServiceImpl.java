@@ -9,6 +9,7 @@ import com.nextgen.sgp.util.FormatterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -40,6 +41,7 @@ public class CategoriaServiceImpl implements CategoriaService {
             if (categoriaRepository.existsByNome(categoria.getNome())) {
                 throw new BadRequestException("Já possui essa categoria: " + categoria.getNome() + " cadastrada!");
             }
+            categoria.setDataUltimaAlteracao(new Date());
             return categoriaRepository.save(categoria);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -58,6 +60,9 @@ public class CategoriaServiceImpl implements CategoriaService {
         if (categoria.getIndicadorAtivo() == null) {
             throw new BadRequestException("Indicador de ativo da categoria não encontrado!");
         }
+        if (categoria.getDepartamento() == null) {
+            throw new BadRequestException("Departamento da categoria não encontrado!");
+        }
     }
 
     public Categoria atualizar(Categoria categoria) throws BadRequestException, InternalServerErrorException {
@@ -68,6 +73,7 @@ public class CategoriaServiceImpl implements CategoriaService {
             }
             String nomeCategoriaFormatado = formatterUtil.removerAcentos(categoria.getNome());
             categoria.setNome(nomeCategoriaFormatado.toUpperCase().trim());
+            categoria.setDataUltimaAlteracao(new Date());
             return categoriaRepository.save(categoria);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -86,6 +92,7 @@ public class CategoriaServiceImpl implements CategoriaService {
                 throw new BadRequestException("Categoria: " + codigo + " não encontrada para inativar!");
             }
             categoriaEncontrada.setIndicadorAtivo(Boolean.FALSE);
+            categoriaEncontrada.setDataUltimaAlteracao(new Date());
             categoriaRepository.save(categoriaEncontrada);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());

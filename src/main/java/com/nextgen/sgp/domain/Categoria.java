@@ -3,6 +3,7 @@ package com.nextgen.sgp.domain;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -29,15 +30,19 @@ public class Categoria implements Serializable {
     @JoinColumn(name = "CODDPT", referencedColumnName = "CODDPT")
     private Departamento departamento;
 
+    @Column(name = "DATULTALT")
+    private Date dataUltimaAlteracao;
+
     public Categoria() {
 
     }
 
-    public Categoria(Long codigo, String nome, Boolean indicadorAtivo, Departamento departamento) {
+    public Categoria(Long codigo, String nome, Boolean indicadorAtivo, Departamento departamento, Date dataUltimaAlteracao) {
         this.codigo = codigo;
         this.nome = nome;
         this.indicadorAtivo = indicadorAtivo;
         this.departamento = departamento;
+        this.dataUltimaAlteracao = dataUltimaAlteracao;
     }
 
     public Long getCodigo() {
@@ -70,6 +75,14 @@ public class Categoria implements Serializable {
 
     public void setDepartamento(Departamento departamento) {
         this.departamento = departamento;
+    }
+
+    public Date getDataUltimaAlteracao() {
+        return dataUltimaAlteracao;
+    }
+
+    public void setDataUltimaAlteracao(Date dataUltimaAlteracao) {
+        this.dataUltimaAlteracao = dataUltimaAlteracao;
     }
 
     @Override

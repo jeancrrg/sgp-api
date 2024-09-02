@@ -9,6 +9,7 @@ import com.nextgen.sgp.util.FormatterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -40,6 +41,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
             if (departamentoRepository.existsByNome(departamento.getNome())) {
                 throw new BadRequestException("Já possui esse departamento: " + departamento.getNome() + " cadastrado!");
             }
+            departamento.setDataUltimaAlteracao(new Date());
             return departamentoRepository.save(departamento);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -68,6 +70,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
             }
             String nomeDepartamentoFormatado = formatterUtil.removerAcentos(departamento.getNome());
             departamento.setNome(nomeDepartamentoFormatado.toUpperCase().trim());
+            departamento.setDataUltimaAlteracao(new Date());
             return departamentoRepository.save(departamento);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -86,6 +89,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
                 throw new BadRequestException("Departamento: " + codigo + " não encontrado para inativar!");
             }
             departamentoEncontrado.setIndicadorAtivo(Boolean.FALSE);
+            departamentoEncontrado.setDataUltimaAlteracao(new Date());
             departamentoRepository.save(departamentoEncontrado);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());

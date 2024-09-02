@@ -9,6 +9,7 @@ import com.nextgen.sgp.util.FormatterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -40,6 +41,7 @@ public class MarcaServiceImpl implements MarcaService {
             if (marcaRepository.existsByNome(marca.getNome())) {
                 throw new BadRequestException("Já possui essa marca: " + marca.getNome() + " cadastrada!");
             }
+            marca.setDataUltimaAlteracao(new Date());
             return marcaRepository.save(marca);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -68,6 +70,7 @@ public class MarcaServiceImpl implements MarcaService {
             }
             String nomeMarcaFormatado = formatterUtil.removerAcentos(marca.getNome());
             marca.setNome(nomeMarcaFormatado.toUpperCase().trim());
+            marca.setDataUltimaAlteracao(new Date());
             return marcaRepository.save(marca);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -86,6 +89,7 @@ public class MarcaServiceImpl implements MarcaService {
                 throw new BadRequestException("Marca: " + codigo + " não encontrada para inativar!");
             }
             marcaEncontrada.setIndicadorAtivo(Boolean.FALSE);
+            marcaEncontrada.setDataUltimaAlteracao(new Date());
             marcaRepository.save(marcaEncontrada);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());

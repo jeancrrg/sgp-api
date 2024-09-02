@@ -3,6 +3,7 @@ package com.nextgen.sgp.domain;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -25,14 +26,18 @@ public class Marca implements Serializable {
     @Column(name = "INDATV")
     private Boolean indicadorAtivo;
 
+    @Column(name = "DATULTALT")
+    private Date dataUltimaAlteracao;
+
     public Marca() {
 
     }
 
-    public Marca(Long codigo, String nome, Boolean indicadorAtivo) {
+    public Marca(Long codigo, String nome, Boolean indicadorAtivo, Date dataUltimaAlteracao) {
         this.codigo = codigo;
         this.nome = nome;
         this.indicadorAtivo = indicadorAtivo;
+        this.dataUltimaAlteracao = dataUltimaAlteracao;
     }
 
     public Long getCodigo() {
@@ -57,6 +62,14 @@ public class Marca implements Serializable {
 
     public void setIndicadorAtivo(Boolean indicadorAtivo) {
         this.indicadorAtivo = indicadorAtivo;
+    }
+
+    public Date getDataUltimaAlteracao() {
+        return dataUltimaAlteracao;
+    }
+
+    public void setDataUltimaAlteracao(Date dataUltimaAlteracao) {
+        this.dataUltimaAlteracao = dataUltimaAlteracao;
     }
 
     @Override
