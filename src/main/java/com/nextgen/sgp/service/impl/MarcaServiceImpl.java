@@ -29,7 +29,7 @@ public class MarcaServiceImpl implements MarcaService {
             }
             return marcaRepository.buscar(codigo, nome, indicadorAtivo);
         } catch (Exception e) {
-            throw new InternalServerErrorException("ERRO: Erro ao buscar a marca! - MENSAGEM DO ERRO: " + e.getMessage());
+            throw new InternalServerErrorException("ERRO: Erro ao buscar as marcas! - MENSAGEM DO ERRO: " + e.getMessage());
         }
     }
 

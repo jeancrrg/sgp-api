@@ -29,7 +29,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
             }
             return departamentoRepository.buscar(codigo, nome, indicadorAtivo);
         } catch (Exception e) {
-            throw new InternalServerErrorException("ERRO: Erro ao buscar o departamento! - MENSAGEM DO ERRO: " + e.getMessage());
+            throw new InternalServerErrorException("ERRO: Erro ao buscar os departamentos! - MENSAGEM DO ERRO: " + e.getMessage());
         }
     }
 

@@ -2,6 +2,7 @@ package com.nextgen.sgp.domain;
 
 import jakarta.persistence.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -13,6 +14,7 @@ import java.util.Objects;
 @Table(name = "TMARCA")
 public class Marca implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id

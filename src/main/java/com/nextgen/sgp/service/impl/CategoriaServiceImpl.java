@@ -29,7 +29,7 @@ public class CategoriaServiceImpl implements CategoriaService {
             }
             return categoriaRepository.buscar(codigo, nome, indicadorAtivo, codigocategoria);
         } catch (Exception e) {
-            throw new InternalServerErrorException("ERRO: Erro ao buscar a categoria! - MENSAGEM DO ERRO: " + e.getMessage());
+            throw new InternalServerErrorException("ERRO: Erro ao buscar as categorias! - MENSAGEM DO ERRO: " + e.getMessage());
         }
     }
 
