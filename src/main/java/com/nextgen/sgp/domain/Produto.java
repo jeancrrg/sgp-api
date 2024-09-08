@@ -6,6 +6,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Table(name = "TPRODUTO")
@@ -25,11 +26,13 @@ public class Produto implements Serializable {
     @Column(name = "CODBAREAN")
     private String codigoBarrasEAN;
 
-    @Column(name = "CODTIPPRO")
-    private Integer codigoTipoProduto;
+    @ManyToOne
+    @JoinColumn(name = "CODTIPPRO", referencedColumnName = "CODTIPPRO")
+    private TipoProduto tipoProduto;
 
-    @Column(name = "CODSTA")
-    private Long codigoStatus;
+    @ManyToOne
+    @JoinColumn(name = "CODSTAPRO", referencedColumnName = "CODSTAPRO")
+    private StatusProduto statusProduto;
 
     @ManyToOne
     @JoinColumn(name = "CODMRC", referencedColumnName = "CODMRC")
@@ -52,22 +55,26 @@ public class Produto implements Serializable {
     @Column(name = "QNTETQ")
     private Integer quantidadeEstoque;
 
+    @Column(name = "DESDET")
+    private String descricaoDetalhada;
+
     public Produto() {
 
     }
 
-    public Produto(Long codigo, String nome, String codigoBarrasEAN, Integer codigoTipoProduto, Long codigoStatus, Marca marca, Departamento departamento, Categoria categoria, Date dataUltimaAlteracao, BigDecimal preco, Integer quantidadeEstoque) {
+    public Produto(Long codigo, String nome, String codigoBarrasEAN, TipoProduto tipoProduto, StatusProduto statusProduto, Marca marca, Departamento departamento, Categoria categoria, Date dataUltimaAlteracao, BigDecimal preco, Integer quantidadeEstoque, String descricaoDetalhada) {
         this.codigo = codigo;
         this.nome = nome;
         this.codigoBarrasEAN = codigoBarrasEAN;
-        this.codigoTipoProduto = codigoTipoProduto;
-        this.codigoStatus = codigoStatus;
+        this.tipoProduto = tipoProduto;
+        this.statusProduto = statusProduto;
         this.marca = marca;
         this.departamento = departamento;
         this.categoria = categoria;
         this.dataUltimaAlteracao = dataUltimaAlteracao;
         this.preco = preco;
         this.quantidadeEstoque = quantidadeEstoque;
+        this.descricaoDetalhada = descricaoDetalhada;
     }
 
     public Long getCodigo() {
@@ -94,20 +101,20 @@ public class Produto implements Serializable {
         this.codigoBarrasEAN = codigoBarrasEAN;
     }
 
-    public Integer getCodigoTipoProduto() {
-        return codigoTipoProduto;
+    public TipoProduto getTipoProduto() {
+        return tipoProduto;
     }
 
-    public void setCodigoTipoProduto(Integer codigoTipoProduto) {
-        this.codigoTipoProduto = codigoTipoProduto;
+    public void setTipoProduto(TipoProduto tipoProduto) {
+        this.tipoProduto = tipoProduto;
     }
 
-    public Long getCodigoStatus() {
-        return codigoStatus;
+    public StatusProduto getStatusProduto() {
+        return statusProduto;
     }
 
-    public void setCodigoStatus(Long codigoStatus) {
-        this.codigoStatus = codigoStatus;
+    public void setStatusProduto(StatusProduto statusProduto) {
+        this.statusProduto = statusProduto;
     }
 
     public Marca getMarca() {
@@ -158,5 +165,25 @@ public class Produto implements Serializable {
         this.quantidadeEstoque = quantidadeEstoque;
     }
 
+    public String getDescricaoDetalhada() {
+        return descricaoDetalhada;
+    }
+
+    public void setDescricaoDetalhada(String descricaoDetalhada) {
+        this.descricaoDetalhada = descricaoDetalhada;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Produto produto = (Produto) o;
+        return Objects.equals(codigo, produto.codigo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(codigo);
+    }
 
 }
