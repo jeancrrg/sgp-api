@@ -49,6 +49,9 @@ public class ImagemProduto implements Serializable {
     private String arquivoBase64;
 
     @Transient
+    private String urlImagem;
+
+    @Transient
     private String tamanhoImagemConvertido;
 
     @Transient
@@ -61,7 +64,7 @@ public class ImagemProduto implements Serializable {
 
     }
 
-    public ImagemProduto(Long codigo, String nome, String nomeImagemServidor, Long tamanhoImagemBytes, Long codigoProduto, String tipoExtensaoImagem, LocalDateTime dataUltimaAlteracao, String arquivoBase64, String tamanhoImagemConvertido, Status statusCadastro, String mensagemErroCadastro) {
+    public ImagemProduto(Long codigo, String nome, String nomeImagemServidor, Long tamanhoImagemBytes, Long codigoProduto, String tipoExtensaoImagem, LocalDateTime dataUltimaAlteracao, String arquivoBase64, String urlImagem, String tamanhoImagemConvertido, Status statusCadastro, String mensagemErroCadastro) {
         this.codigo = codigo;
         this.nome = nome;
         this.nomeImagemServidor = nomeImagemServidor;
@@ -70,6 +73,7 @@ public class ImagemProduto implements Serializable {
         this.tipoExtensaoImagem = tipoExtensaoImagem;
         this.dataUltimaAlteracao = dataUltimaAlteracao;
         this.arquivoBase64 = arquivoBase64;
+        this.urlImagem = urlImagem;
         this.tamanhoImagemConvertido = tamanhoImagemConvertido;
         this.statusCadastro = statusCadastro;
         this.mensagemErroCadastro = mensagemErroCadastro;
@@ -137,6 +141,14 @@ public class ImagemProduto implements Serializable {
 
     public void setArquivoBase64(String arquivoBase64) {
         this.arquivoBase64 = arquivoBase64;
+    }
+
+    public String getUrlImagem() {
+        return urlImagem;
+    }
+
+    public void setUrlImagem(String urlImagem) {
+        this.urlImagem = urlImagem;
     }
 
     public String getTamanhoImagemConvertido() {

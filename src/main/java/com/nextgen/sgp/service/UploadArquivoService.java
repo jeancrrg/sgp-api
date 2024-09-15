@@ -5,6 +5,8 @@ import com.nextgen.sgp.exception.UploadArquivoException;
 
 public interface UploadArquivoService {
 
-    void realizarUpload(UploadArquivoDTO uploadArquivo) throws UploadArquivoException;
+    String buscarUrlArquivoAmazon(String caminhoDiretorio) throws UploadArquivoException;
+
+    void realizarUploadAmazon(UploadArquivoDTO uploadArquivo) throws UploadArquivoException;
 
 }

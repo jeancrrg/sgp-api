@@ -13,12 +13,14 @@ import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URL;
+import java.time.Duration;
 
 @Service
 public class UploadArquivoServiceImpl implements UploadArquivoService {
@@ -29,7 +31,34 @@ public class UploadArquivoServiceImpl implements UploadArquivoService {
     @Value("${amazon.bucket}")
     private String BUCKET_AMAZON;
 
-    public void realizarUpload(UploadArquivoDTO uploadArquivoDTO) throws UploadArquivoException {
+    public String buscarUrlArquivoAmazon(String caminhoDiretorio) throws UploadArquivoException {
+        try {
+            if (caminhoDiretorio == null || caminhoDiretorio.isEmpty()) {
+                throw new BadRequestException("Caminho do diretório do arquivo não encontrado para buscar!");
+            }
+            // Usado recurdo try-with-resources para garantir o autoclose automático do S3Presigner
+            try (S3Presigner presigner = S3Presigner.builder().region(Region.SA_EAST_1).credentialsProvider(ProfileCredentialsProvider.create()).build()) {
+
+                // Requisição de obtenção do objeto
+                GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(BUCKET_AMAZON).key(caminhoDiretorio).build();
+
+                // Criação da URL pré-assinada com expiração de 30 minutos
+                GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder().signatureDuration(Duration.ofMinutes(30)).getObjectRequest(getObjectRequest).build();
+
+                // Gera a URL pré-assinada
+                URL presignedUrl = presigner.presignGetObject(presignRequest).url();
+
+                // Retorna a URL
+                return presignedUrl.toExternalForm();
+            }
+        } catch (BadRequestException e) {
+            throw new UploadArquivoException(e.getMessage());
+        } catch (Exception e) {
+            throw new UploadArquivoException("ERRO: Erro ao buscar arquivo no diretório: " + caminhoDiretorio + " da amazon! - MENSAGEM DO ERRO: " + e.getMessage());
+        }
+    }
+
+    public void realizarUploadAmazon(UploadArquivoDTO uploadArquivoDTO) throws UploadArquivoException {
         try {
             validarCamposUploadArquivo(uploadArquivoDTO);
             byte[] arquivoBytes = converterUtil.converterBase64EmBytes(uploadArquivoDTO.getArquivoBase64());
@@ -59,23 +88,25 @@ public class UploadArquivoServiceImpl implements UploadArquivoService {
         }
     }
 
-    public void enviarArquivoAmazon(String caminhoDiretorio, byte[] arquivoBytes) {
-        InputStream inputStream = new ByteArrayInputStream(arquivoBytes);
+    public void enviarArquivoAmazon(String caminhoDiretorio, byte[] arquivoBytes) throws Exception {
+        // Usado recurso try-with-resources para garantir o autoclose automático do inputStream e s3Client
+        try (InputStream inputStream = new ByteArrayInputStream(arquivoBytes);
+                S3Client s3Client = S3Client.builder().region(Region.SA_EAST_1).credentialsProvider(ProfileCredentialsProvider.create()).build()) {
 
-        // Criação do cliente S3
-        S3Client s3Client = S3Client.builder().region(Region.SA_EAST_1).credentialsProvider(ProfileCredentialsProvider.create()).build();
+            // Requisição de upload do objeto
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(BUCKET_AMAZON).key(caminhoDiretorio).build();
 
-        // Requisição de upload do objeto
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(BUCKET_AMAZON).key(caminhoDiretorio).build();
-
-        // Envio do arquivo
-        s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, arquivoBytes.length));
+            // Envio do arquivo
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, arquivoBytes.length));
+        } catch (Exception e) {
+            throw new Exception("ERRO: Erro ao enviar arquivo para a amazon! - MENSAGEM DO ERRO: " + e.getMessage());
+        }
     }
 
     public void verificarArquivoEnviado(String caminhoDiretorio) throws Exception {
-        try {
+        // Usado recurso try-with-resources para garantir o autoclose automático do s3Client
+        try (S3Client s3Client = S3Client.builder().region(Region.SA_EAST_1).credentialsProvider(ProfileCredentialsProvider.create()).build()) {
             HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().bucket(BUCKET_AMAZON).key(caminhoDiretorio).build();
-            S3Client s3Client = S3Client.builder().region(Region.SA_EAST_1).credentialsProvider(ProfileCredentialsProvider.create()).build();
             s3Client.headObject(headObjectRequest);
         } catch (S3Exception e) {
             throw new Exception("ERRO: Arquivo não encontrado após realização do upload! - MENSAGEM DO ERRO: " + e.getMessage());

@@ -2,6 +2,8 @@ package com.nextgen.sgp.controller;
 
 import com.nextgen.sgp.domain.cadastro.ImagemProduto;
 import com.nextgen.sgp.exception.BadRequestException;
+import com.nextgen.sgp.exception.ConverterException;
+import com.nextgen.sgp.exception.UploadArquivoException;
 import com.nextgen.sgp.service.ImagemProdutoService;
 import com.nextgen.sgp.util.LoggerUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,12 @@ public class ImagemProdutoController {
                                     @RequestParam (required = false) Long codigoProduto) {
         try {
             return ResponseEntity.ok(imagemProdutoService.buscar(codigo, nome, codigoProduto));
+        } catch (ConverterException e) {
+            loggerUtil.error(ImagemProdutoController.class, "Erro ao converter ao converter o arquivo na busca de imagens do produto!", "buscar", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao converter ao converter o arquivo na busca de imagens do produto!");
+        } catch (UploadArquivoException e) {
+            loggerUtil.error(ImagemProdutoController.class, "Erro ao buscar as imagens do produto na amazon!", "buscar", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as imagens do produto no repositório de imagens!");
         } catch (Exception e) {
             loggerUtil.error(ImagemProdutoController.class, "Erro ao buscar as imagens do produto!", "buscar", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as imagens do produto!");

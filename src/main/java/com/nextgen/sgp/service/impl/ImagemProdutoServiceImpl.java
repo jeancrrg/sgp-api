@@ -4,11 +4,13 @@ import com.nextgen.sgp.domain.cadastro.ImagemProduto;
 import com.nextgen.sgp.domain.dto.UploadArquivoDTO;
 import com.nextgen.sgp.domain.enums.Status;
 import com.nextgen.sgp.exception.BadRequestException;
+import com.nextgen.sgp.exception.ConverterException;
 import com.nextgen.sgp.exception.InternalServerErrorException;
 import com.nextgen.sgp.exception.UploadArquivoException;
 import com.nextgen.sgp.repository.ImagemProdutoRepository;
 import com.nextgen.sgp.service.ImagemProdutoService;
 import com.nextgen.sgp.service.UploadArquivoService;
+import com.nextgen.sgp.util.ConverterUtil;
 import com.nextgen.sgp.util.FormatterUtil;
 import com.nextgen.sgp.util.LoggerUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,17 +36,37 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
     private FormatterUtil formatterUtil;
 
     private final String CAMINHO_DIRETORIO_IMAGEM = "imagens/produtos";
+    @Autowired
+    private ConverterUtil converterUtil;
 
-    public List<ImagemProduto> buscar(Long codigo, String nome, Long codigoProduto) throws InternalServerErrorException {
+    public List<ImagemProduto> buscar(Long codigo, String nome, Long codigoProduto) throws ConverterException, UploadArquivoException, InternalServerErrorException {
         try {
             if (nome != null && !nome.isEmpty()) {
                 String nomeFormatado = formatterUtil.removerAcentos(nome);
                 nome = "%" + nomeFormatado.toUpperCase().trim() + "%";
             }
-            return imagemProdutoRepository.buscar(codigo, nome, codigoProduto);
+            List<ImagemProduto> listaImagensProdutos = imagemProdutoRepository.buscar(codigo, nome, codigoProduto);
+            if (listaImagensProdutos != null && !listaImagensProdutos.isEmpty()) {
+                listaImagensProdutos = processarImagensProdutoAmazon(listaImagensProdutos);
+            }
+            return listaImagensProdutos;
+        } catch (ConverterException e) {
+            throw new ConverterException("ERRO: Erro ao converter o arquivo para buscar as imagens do produto! - MENSAGEM DO ERRO: " + e.getMessage());
+        } catch (UploadArquivoException e) {
+            throw new UploadArquivoException("ERRO: Erro ao buscar as imagens do produto no repositório da amazon! - MENSAGEM DO ERRO: " + e.getMessage());
         } catch (Exception e) {
             throw new InternalServerErrorException("ERRO: Erro ao buscar as imagens do produto! - MENSAGEM DO ERRO: " + e.getMessage());
         }
+    }
+
+    public List<ImagemProduto> processarImagensProdutoAmazon(List<ImagemProduto> listaImagensProduto) throws ConverterException, UploadArquivoException {
+        List<ImagemProduto> listaImagensProdutoAmazon = new ArrayList<>();
+        for (ImagemProduto imagemProduto : listaImagensProduto) {
+            String urlImagemAmazon = uploadArquivoService.buscarUrlArquivoAmazon(STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProduto.getCodigoProduto()}/\{imagemProduto.getNomeImagemServidor()}");
+            imagemProduto.setUrlImagem(urlImagemAmazon);
+            listaImagensProdutoAmazon.add(imagemProduto);
+        }
+        return listaImagensProdutoAmazon;
     }
 
     public List<ImagemProduto> cadastrar(List<ImagemProduto> listaImagensProduto) throws BadRequestException, InternalServerErrorException {
@@ -82,7 +104,7 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
             throw new InternalServerErrorException("Imagem do produto não encontrada cadastro para atualizar o nome da imagem do servidor!");
         }
         String nomeImagemServidor = imagemProdutoSalva.getCodigo() + imagemProdutoSalva.getTipoExtensaoImagem();
-        uploadArquivoService.realizarUpload(new UploadArquivoDTO(nomeImagemServidor, STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProdutoSalva.getCodigoProduto()}/\{nomeImagemServidor}", imagemProdutoSalva.getArquivoBase64()));
+        uploadArquivoService.realizarUploadAmazon(new UploadArquivoDTO(nomeImagemServidor, STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProdutoSalva.getCodigoProduto()}/\{nomeImagemServidor}", imagemProdutoSalva.getArquivoBase64()));
         return atualizarNomeImagemServidor(imagemProdutoSalva, nomeImagemServidor);
     }
 
