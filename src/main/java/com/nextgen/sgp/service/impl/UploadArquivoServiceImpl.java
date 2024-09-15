@@ -9,9 +9,7 @@ import com.nextgen.sgp.util.ConverterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -29,7 +27,7 @@ public class UploadArquivoServiceImpl implements UploadArquivoService {
     private ConverterUtil converterUtil;
 
     @Value("${amazon.bucket}")
-    private String BUCKET;
+    private String BUCKET_AMAZON;
 
     public void realizarUpload(UploadArquivoDTO uploadArquivoDTO) throws UploadArquivoException {
         try {
@@ -68,7 +66,7 @@ public class UploadArquivoServiceImpl implements UploadArquivoService {
         S3Client s3Client = S3Client.builder().region(Region.SA_EAST_1).credentialsProvider(ProfileCredentialsProvider.create()).build();
 
         // Requisição de upload do objeto
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(BUCKET).key(caminhoDiretorio).build();
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(BUCKET_AMAZON).key(caminhoDiretorio).build();
 
         // Envio do arquivo
         s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, arquivoBytes.length));
@@ -76,7 +74,7 @@ public class UploadArquivoServiceImpl implements UploadArquivoService {
 
     public void verificarArquivoEnviado(String caminhoDiretorio) throws Exception {
         try {
-            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().bucket(BUCKET).key(caminhoDiretorio).build();
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().bucket(BUCKET_AMAZON).key(caminhoDiretorio).build();
             S3Client s3Client = S3Client.builder().region(Region.SA_EAST_1).credentialsProvider(ProfileCredentialsProvider.create()).build();
             s3Client.headObject(headObjectRequest);
         } catch (S3Exception e) {
