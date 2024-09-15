@@ -1,44 +1,53 @@
-package com.nextgen.sgp.domain;
+package com.nextgen.sgp.domain.cadastro;
 
 import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
  * @author Jean Garcia
  */
 @Entity
-@Table(name = "TMARCA")
-public class Marca implements Serializable {
+@Table(name = "TCATEGORIA")
+public class Categoria implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CODMRC")
+    @Column(name = "CODCTG")
     private Long codigo;
 
-    @Column(name = "NOMMRC")
+    @Column(name = "NOMCTG")
     private String nome;
 
     @Column(name = "INDATV")
     private Boolean indicadorAtivo;
 
-    @Column(name = "DATULTALT")
-    private Date dataUltimaAlteracao;
+    @ManyToOne
+    @JoinColumn(name = "CODDPT", referencedColumnName = "CODDPT")
+    private Departamento departamento;
 
-    public Marca() {
+    @Column(name = "DATCAD")
+    private LocalDateTime dataCadastro;
+
+    @Column(name = "DATULTALT")
+    private LocalDateTime dataUltimaAlteracao;
+
+    public Categoria() {
 
     }
 
-    public Marca(Long codigo, String nome, Boolean indicadorAtivo, Date dataUltimaAlteracao) {
+    public Categoria(Long codigo, String nome, Boolean indicadorAtivo, Departamento departamento, LocalDateTime dataCadastro, LocalDateTime dataUltimaAlteracao) {
         this.codigo = codigo;
         this.nome = nome;
         this.indicadorAtivo = indicadorAtivo;
+        this.departamento = departamento;
+        this.dataCadastro = dataCadastro;
         this.dataUltimaAlteracao = dataUltimaAlteracao;
     }
 
@@ -66,11 +75,27 @@ public class Marca implements Serializable {
         this.indicadorAtivo = indicadorAtivo;
     }
 
-    public Date getDataUltimaAlteracao() {
+    public Departamento getDepartamento() {
+        return departamento;
+    }
+
+    public void setDepartamento(Departamento departamento) {
+        this.departamento = departamento;
+    }
+
+    public LocalDateTime getDataCadastro() {
+        return dataCadastro;
+    }
+
+    public void setDataCadastro(LocalDateTime dataCadastro) {
+        this.dataCadastro = dataCadastro;
+    }
+
+    public LocalDateTime getDataUltimaAlteracao() {
         return dataUltimaAlteracao;
     }
 
-    public void setDataUltimaAlteracao(Date dataUltimaAlteracao) {
+    public void setDataUltimaAlteracao(LocalDateTime dataUltimaAlteracao) {
         this.dataUltimaAlteracao = dataUltimaAlteracao;
     }
 
@@ -78,8 +103,8 @@ public class Marca implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Marca marca = (Marca) o;
-        return Objects.equals(codigo, marca.codigo);
+        Categoria categoria = (Categoria) o;
+        return Objects.equals(codigo, categoria.codigo);
     }
 
     @Override

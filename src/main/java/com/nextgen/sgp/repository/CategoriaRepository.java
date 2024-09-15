@@ -1,6 +1,6 @@
 package com.nextgen.sgp.repository;
 
-import com.nextgen.sgp.domain.Categoria;
+import com.nextgen.sgp.domain.cadastro.Categoria;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -22,5 +22,12 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
     Boolean existsByCodigo(Long codigo);
 
     Boolean existsByNome(String nome);
+
+    @Query("SELECT ctg " +
+            " FROM Categoria ctg " +
+            "WHERE 1=1 " +
+            "  AND ctg.codigo = :codigo " +
+            "  AND ctg.indicadorAtivo = true ")
+    Categoria buscarAtiva(Long codigo);
 
 }

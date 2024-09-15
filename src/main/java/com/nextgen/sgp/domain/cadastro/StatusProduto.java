@@ -1,4 +1,4 @@
-package com.nextgen.sgp.domain;
+package com.nextgen.sgp.domain.cadastro;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

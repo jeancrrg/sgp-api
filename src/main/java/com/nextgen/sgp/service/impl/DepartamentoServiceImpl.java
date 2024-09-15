@@ -1,6 +1,6 @@
 package com.nextgen.sgp.service.impl;
 
-import com.nextgen.sgp.domain.Departamento;
+import com.nextgen.sgp.domain.cadastro.Departamento;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.exception.InternalServerErrorException;
 import com.nextgen.sgp.repository.DepartamentoRepository;
@@ -9,7 +9,7 @@ import com.nextgen.sgp.util.FormatterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -33,20 +33,21 @@ public class DepartamentoServiceImpl implements DepartamentoService {
         }
     }
 
-    public Departamento salvar(Departamento departamento) throws BadRequestException, InternalServerErrorException {
+    public Departamento cadastrar(Departamento departamento) throws BadRequestException, InternalServerErrorException {
         try {
             validarDadosDepartamento(departamento);
             String nomeDepartamentoFormatado = formatterUtil.removerAcentos(departamento.getNome());
             departamento.setNome(nomeDepartamentoFormatado.toUpperCase().trim());
             if (departamentoRepository.existsByNome(departamento.getNome())) {
-                throw new BadRequestException("Já possui esse departamento: " + departamento.getNome() + " cadastrado!");
+                throw new BadRequestException("Já possui esse departamento cadastrado!");
             }
-            departamento.setDataUltimaAlteracao(new Date());
+            departamento.setDataCadastro(LocalDateTime.now());
+            departamento.setDataUltimaAlteracao(LocalDateTime.now());
             return departamentoRepository.save(departamento);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
-            throw new InternalServerErrorException("ERRO: Erro ao salvar o departamento! - MENSAGEM DO ERRO: " + e.getMessage());
+            throw new InternalServerErrorException("ERRO: Erro ao cadastrar o departamento! - MENSAGEM DO ERRO: " + e.getMessage());
         }
     }
 
@@ -66,11 +67,11 @@ public class DepartamentoServiceImpl implements DepartamentoService {
         try {
             validarDadosDepartamento(departamento);
             if (!departamentoRepository.existsByCodigo(departamento.getCodigo())) {
-                throw new BadRequestException("Departamento: " + departamento.getNome() + " não encontrado para atualizar!");
+                throw new BadRequestException("Departamento não encontrado para atualizar!");
             }
             String nomeDepartamentoFormatado = formatterUtil.removerAcentos(departamento.getNome());
             departamento.setNome(nomeDepartamentoFormatado.toUpperCase().trim());
-            departamento.setDataUltimaAlteracao(new Date());
+            departamento.setDataUltimaAlteracao(LocalDateTime.now());
             return departamentoRepository.save(departamento);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -86,10 +87,10 @@ public class DepartamentoServiceImpl implements DepartamentoService {
             }
             Departamento departamentoEncontrado = departamentoRepository.findByCodigo(codigo);
             if (departamentoEncontrado == null) {
-                throw new BadRequestException("Departamento: " + codigo + " não encontrado para inativar!");
+                throw new BadRequestException("Departamento não encontrado para inativar!");
             }
             departamentoEncontrado.setIndicadorAtivo(Boolean.FALSE);
-            departamentoEncontrado.setDataUltimaAlteracao(new Date());
+            departamentoEncontrado.setDataUltimaAlteracao(LocalDateTime.now());
             departamentoRepository.save(departamentoEncontrado);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());

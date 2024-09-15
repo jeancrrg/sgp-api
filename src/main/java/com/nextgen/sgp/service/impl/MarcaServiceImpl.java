@@ -1,6 +1,6 @@
 package com.nextgen.sgp.service.impl;
 
-import com.nextgen.sgp.domain.Marca;
+import com.nextgen.sgp.domain.cadastro.Marca;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.exception.InternalServerErrorException;
 import com.nextgen.sgp.repository.MarcaRepository;
@@ -9,7 +9,7 @@ import com.nextgen.sgp.util.FormatterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -33,20 +33,21 @@ public class MarcaServiceImpl implements MarcaService {
         }
     }
 
-    public Marca salvar(Marca marca) throws BadRequestException, InternalServerErrorException {
+    public Marca cadastrar(Marca marca) throws BadRequestException, InternalServerErrorException {
         try {
             validarDadosMarca(marca);
             String nomeMarcaFormatado = formatterUtil.removerAcentos(marca.getNome());
             marca.setNome(nomeMarcaFormatado.toUpperCase().trim());
             if (marcaRepository.existsByNome(marca.getNome())) {
-                throw new BadRequestException("Já possui essa marca: " + marca.getNome() + " cadastrada!");
+                throw new BadRequestException("Já possui essa marca cadastrada!");
             }
-            marca.setDataUltimaAlteracao(new Date());
+            marca.setDataCadastro(LocalDateTime.now());
+            marca.setDataUltimaAlteracao(LocalDateTime.now());
             return marcaRepository.save(marca);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
-            throw new InternalServerErrorException("ERRO: Erro ao salvar a marca! - MENSAGEM DO ERRO: " + e.getMessage());
+            throw new InternalServerErrorException("ERRO: Erro ao cadastrar a marca! - MENSAGEM DO ERRO: " + e.getMessage());
         }
     }
 
@@ -66,11 +67,11 @@ public class MarcaServiceImpl implements MarcaService {
         try {
             validarDadosMarca(marca);
             if (!marcaRepository.existsByCodigo(marca.getCodigo())) {
-                throw new BadRequestException("Marca: " + marca.getNome() + " não encontrada para atualizar!");
+                throw new BadRequestException("Marca não encontrada para atualizar!");
             }
             String nomeMarcaFormatado = formatterUtil.removerAcentos(marca.getNome());
             marca.setNome(nomeMarcaFormatado.toUpperCase().trim());
-            marca.setDataUltimaAlteracao(new Date());
+            marca.setDataUltimaAlteracao(LocalDateTime.now());
             return marcaRepository.save(marca);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -86,15 +87,28 @@ public class MarcaServiceImpl implements MarcaService {
             }
             Marca marcaEncontrada = marcaRepository.findByCodigo(codigo);
             if (marcaEncontrada == null) {
-                throw new BadRequestException("Marca: " + codigo + " não encontrada para inativar!");
+                throw new BadRequestException("Marca não encontrada para inativar!");
             }
             marcaEncontrada.setIndicadorAtivo(Boolean.FALSE);
-            marcaEncontrada.setDataUltimaAlteracao(new Date());
+            marcaEncontrada.setDataUltimaAlteracao(LocalDateTime.now());
             marcaRepository.save(marcaEncontrada);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             throw new InternalServerErrorException("ERRO: Erro ao inativar a marca! - MENSAGEM DO ERRO: " + e.getMessage());
+        }
+    }
+
+    public Marca buscarAtiva(Long codigo) throws BadRequestException, InternalServerErrorException {
+        try {
+            if (codigo == null) {
+                throw new BadRequestException("Código da marca não encontrado!");
+            }
+            return marcaRepository.buscarAtiva(codigo);
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            throw new InternalServerErrorException("ERRO: Erro ao buscar a marca ativa! - MENSAGEM DO ERRO: " + e.getMessage());
         }
     }
 

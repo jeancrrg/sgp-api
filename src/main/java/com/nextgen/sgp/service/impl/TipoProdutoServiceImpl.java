@@ -1,6 +1,6 @@
 package com.nextgen.sgp.service.impl;
 
-import com.nextgen.sgp.domain.TipoProduto;
+import com.nextgen.sgp.domain.cadastro.TipoProduto;
 import com.nextgen.sgp.exception.InternalServerErrorException;
 import com.nextgen.sgp.repository.TipoProdutoRepository;
 import com.nextgen.sgp.service.TipoProdutoService;

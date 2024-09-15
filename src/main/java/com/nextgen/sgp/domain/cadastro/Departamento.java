@@ -1,10 +1,10 @@
-package com.nextgen.sgp.domain;
+package com.nextgen.sgp.domain.cadastro;
 
 import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -28,17 +28,21 @@ public class Departamento implements Serializable {
     @Column(name = "INDATV")
     private Boolean indicadorAtivo;
 
+    @Column(name = "DATCAD")
+    private LocalDateTime dataCadastro;
+
     @Column(name = "DATULTALT")
-    private Date dataUltimaAlteracao;
+    private LocalDateTime dataUltimaAlteracao;
 
     public Departamento() {
 
     }
 
-    public Departamento(Long codigo, String nome, Boolean indicadorAtivo, Date dataUltimaAlteracao) {
+    public Departamento(Long codigo, String nome, Boolean indicadorAtivo, LocalDateTime dataCadastro, LocalDateTime dataUltimaAlteracao) {
         this.codigo = codigo;
         this.nome = nome;
         this.indicadorAtivo = indicadorAtivo;
+        this.dataCadastro = dataCadastro;
         this.dataUltimaAlteracao = dataUltimaAlteracao;
     }
 
@@ -66,11 +70,19 @@ public class Departamento implements Serializable {
         this.indicadorAtivo = indicadorAtivo;
     }
 
-    public Date getDataUltimaAlteracao() {
+    public LocalDateTime getDataCadastro() {
+        return dataCadastro;
+    }
+
+    public void setDataCadastro(LocalDateTime dataCadastro) {
+        this.dataCadastro = dataCadastro;
+    }
+
+    public LocalDateTime getDataUltimaAlteracao() {
         return dataUltimaAlteracao;
     }
 
-    public void setDataUltimaAlteracao(Date dataUltimaAlteracao) {
+    public void setDataUltimaAlteracao(LocalDateTime dataUltimaAlteracao) {
         this.dataUltimaAlteracao = dataUltimaAlteracao;
     }
 

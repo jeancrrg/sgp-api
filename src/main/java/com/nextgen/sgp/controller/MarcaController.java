@@ -1,6 +1,6 @@
 package com.nextgen.sgp.controller;
 
-import com.nextgen.sgp.domain.Marca;
+import com.nextgen.sgp.domain.cadastro.Marca;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.service.MarcaService;
 import com.nextgen.sgp.util.LoggerUtil;
@@ -33,14 +33,14 @@ public class MarcaController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> salvar(@RequestBody Marca marca) {
+    public ResponseEntity<?> cadastrar(@RequestBody Marca marca) {
         try {
-            return ResponseEntity.ok(marcaService.salvar(marca));
+            return ResponseEntity.ok(marcaService.cadastrar(marca));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(MarcaController.class, "Erro ao salvar a marca: " + marca.getNome() + "!", "salvar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao salvar a marca: " + marca.getNome() + "!");
+            loggerUtil.error(MarcaController.class, "Erro ao cadastrar a marca: " + marca.getNome() + "!", "cadastrar", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar a marca: " + marca.getNome() + "!");
         }
     }
 

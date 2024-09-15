@@ -1,6 +1,6 @@
 package com.nextgen.sgp.controller;
 
-import com.nextgen.sgp.domain.Departamento;
+import com.nextgen.sgp.domain.cadastro.Departamento;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.service.DepartamentoService;
 import com.nextgen.sgp.util.LoggerUtil;
@@ -33,14 +33,14 @@ public class DepartamentoController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> salvar(@RequestBody Departamento departamento) {
+    public ResponseEntity<?> cadastrar(@RequestBody Departamento departamento) {
         try {
-            return ResponseEntity.ok(departamentoService.salvar(departamento));
+            return ResponseEntity.ok(departamentoService.cadastrar(departamento));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(DepartamentoController.class, "Erro ao salvar o departamento: " + departamento.getNome() + "!", "salvar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao salvar o departamento: " + departamento.getNome() + "!");
+            loggerUtil.error(DepartamentoController.class, "Erro ao cadastrar o departamento: " + departamento.getNome() + "!", "cadastrar", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar o departamento: " + departamento.getNome() + "!");
         }
     }
 

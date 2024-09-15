@@ -1,6 +1,6 @@
 package com.nextgen.sgp.service.impl;
 
-import com.nextgen.sgp.domain.Categoria;
+import com.nextgen.sgp.domain.cadastro.Categoria;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.exception.InternalServerErrorException;
 import com.nextgen.sgp.repository.CategoriaRepository;
@@ -9,7 +9,7 @@ import com.nextgen.sgp.util.FormatterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -33,20 +33,21 @@ public class CategoriaServiceImpl implements CategoriaService {
         }
     }
 
-    public Categoria salvar(Categoria categoria) throws BadRequestException, InternalServerErrorException {
+    public Categoria cadastrar(Categoria categoria) throws BadRequestException, InternalServerErrorException {
         try {
             validarDadosCategoria(categoria);
             String nomeCategoriaFormatado = formatterUtil.removerAcentos(categoria.getNome());
             categoria.setNome(nomeCategoriaFormatado.toUpperCase().trim());
             if (categoriaRepository.existsByNome(categoria.getNome())) {
-                throw new BadRequestException("Já possui essa categoria: " + categoria.getNome() + " cadastrada!");
+                throw new BadRequestException("Já possui essa categoria cadastrada!");
             }
-            categoria.setDataUltimaAlteracao(new Date());
+            categoria.setDataCadastro(LocalDateTime.now());
+            categoria.setDataUltimaAlteracao(LocalDateTime.now());
             return categoriaRepository.save(categoria);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
-            throw new InternalServerErrorException("ERRO: Erro ao salvar a categoria! - MENSAGEM DO ERRO: " + e.getMessage());
+            throw new InternalServerErrorException("ERRO: Erro ao cadastrar a categoria! - MENSAGEM DO ERRO: " + e.getMessage());
         }
     }
 
@@ -69,11 +70,11 @@ public class CategoriaServiceImpl implements CategoriaService {
         try {
             validarDadosCategoria(categoria);
             if (!categoriaRepository.existsByCodigo(categoria.getCodigo())) {
-                throw new BadRequestException("Categoria: " + categoria.getNome() + " não encontrada para atualizar!");
+                throw new BadRequestException("Categoria não encontrada para atualizar!");
             }
             String nomeCategoriaFormatado = formatterUtil.removerAcentos(categoria.getNome());
             categoria.setNome(nomeCategoriaFormatado.toUpperCase().trim());
-            categoria.setDataUltimaAlteracao(new Date());
+            categoria.setDataUltimaAlteracao(LocalDateTime.now());
             return categoriaRepository.save(categoria);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -89,15 +90,28 @@ public class CategoriaServiceImpl implements CategoriaService {
             }
             Categoria categoriaEncontrada = categoriaRepository.findByCodigo(codigo);
             if (categoriaEncontrada == null) {
-                throw new BadRequestException("Categoria: " + codigo + " não encontrada para inativar!");
+                throw new BadRequestException("Categoria não encontrada para inativar!");
             }
             categoriaEncontrada.setIndicadorAtivo(Boolean.FALSE);
-            categoriaEncontrada.setDataUltimaAlteracao(new Date());
+            categoriaEncontrada.setDataUltimaAlteracao(LocalDateTime.now());
             categoriaRepository.save(categoriaEncontrada);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             throw new InternalServerErrorException("ERRO: Erro ao inativar a categoria! - MENSAGEM DO ERRO: " + e.getMessage());
+        }
+    }
+
+    public Categoria buscarAtiva(Long codigo) throws BadRequestException, InternalServerErrorException {
+        try {
+            if (codigo == null) {
+                throw new BadRequestException("Código da categoria não encontrado!");
+            }
+            return categoriaRepository.buscarAtiva(codigo);
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            throw new InternalServerErrorException("ERRO: Erro ao buscar a categoria ativa! - MENSAGEM DO ERRO: " + e.getMessage());
         }
     }
 

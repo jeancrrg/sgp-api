@@ -1,6 +1,6 @@
 package com.nextgen.sgp.repository;
 
-import com.nextgen.sgp.domain.Marca;
+import com.nextgen.sgp.domain.cadastro.Marca;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -21,5 +21,12 @@ public interface MarcaRepository extends JpaRepository<Marca, Long> {
     Boolean existsByCodigo(Long codigo);
 
     Boolean existsByNome(String nome);
+
+    @Query("SELECT mrc " +
+            " FROM Marca mrc " +
+            "WHERE 1=1 " +
+            "  AND mrc.codigo = :codigo " +
+            "  AND mrc.indicadorAtivo = true ")
+    Marca buscarAtiva(Long codigo);
 
 }

@@ -1,7 +1,6 @@
 package com.nextgen.sgp.repository;
 
-import com.nextgen.sgp.domain.Marca;
-import com.nextgen.sgp.domain.Produto;
+import com.nextgen.sgp.domain.cadastro.Produto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -18,5 +17,11 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
             "  AND (:codigoStatusProduto IS NULL OR pro.tipoProduto.codigo = :codigoStatusProduto) " +
             "  AND (:quantidadeEstoque IS NULL OR pro.quantidadeEstoque <= :quantidadeEstoque) ")
     List<Produto> buscar(Long codigo, String nome, Integer codigoTipoProduto, Integer codigoStatusProduto, Integer quantidadeEstoque);
+
+    Boolean existsByCodigoBarrasEAN(String codigoBarrasEAN);
+
+    Boolean existsByCodigo(Long codigo);
+
+    Produto findByCodigo(Long codigo);
 
 }

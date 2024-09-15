@@ -1,11 +1,11 @@
-package com.nextgen.sgp.domain;
+package com.nextgen.sgp.domain.cadastro;
 
 import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -46,8 +46,11 @@ public class Produto implements Serializable {
     @JoinColumn(name = "CODCTG", referencedColumnName = "CODCTG")
     private Categoria categoria;
 
+    @Column(name = "DATCAD")
+    private LocalDateTime dataCadastro;
+
     @Column(name = "DATULTALT")
-    private Date dataUltimaAlteracao;
+    private LocalDateTime dataUltimaAlteracao;
 
     @Column(name = "PRCPRO")
     private BigDecimal preco;
@@ -62,7 +65,7 @@ public class Produto implements Serializable {
 
     }
 
-    public Produto(Long codigo, String nome, String codigoBarrasEAN, TipoProduto tipoProduto, StatusProduto statusProduto, Marca marca, Departamento departamento, Categoria categoria, Date dataUltimaAlteracao, BigDecimal preco, Integer quantidadeEstoque, String descricaoDetalhada) {
+    public Produto(Long codigo, String nome, String codigoBarrasEAN, TipoProduto tipoProduto, StatusProduto statusProduto, Marca marca, Departamento departamento, Categoria categoria, LocalDateTime dataCadastro, LocalDateTime dataUltimaAlteracao, BigDecimal preco, Integer quantidadeEstoque, String descricaoDetalhada) {
         this.codigo = codigo;
         this.nome = nome;
         this.codigoBarrasEAN = codigoBarrasEAN;
@@ -71,6 +74,7 @@ public class Produto implements Serializable {
         this.marca = marca;
         this.departamento = departamento;
         this.categoria = categoria;
+        this.dataCadastro = dataCadastro;
         this.dataUltimaAlteracao = dataUltimaAlteracao;
         this.preco = preco;
         this.quantidadeEstoque = quantidadeEstoque;
@@ -141,11 +145,19 @@ public class Produto implements Serializable {
         this.categoria = categoria;
     }
 
-    public Date getDataUltimaAlteracao() {
+    public LocalDateTime getDataCadastro() {
+        return dataCadastro;
+    }
+
+    public void setDataCadastro(LocalDateTime dataCadastro) {
+        this.dataCadastro = dataCadastro;
+    }
+
+    public LocalDateTime getDataUltimaAlteracao() {
         return dataUltimaAlteracao;
     }
 
-    public void setDataUltimaAlteracao(Date dataUltimaAlteracao) {
+    public void setDataUltimaAlteracao(LocalDateTime dataUltimaAlteracao) {
         this.dataUltimaAlteracao = dataUltimaAlteracao;
     }
 

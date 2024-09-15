@@ -1,6 +1,6 @@
 package com.nextgen.sgp.repository;
 
-import com.nextgen.sgp.domain.TipoProduto;
+import com.nextgen.sgp.domain.cadastro.TipoProduto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

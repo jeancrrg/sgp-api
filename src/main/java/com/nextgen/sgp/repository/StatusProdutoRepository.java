@@ -1,6 +1,6 @@
 package com.nextgen.sgp.repository;
 
-import com.nextgen.sgp.domain.StatusProduto;
+import com.nextgen.sgp.domain.cadastro.StatusProduto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -14,5 +14,7 @@ public interface StatusProdutoRepository extends JpaRepository<StatusProduto, In
             "  AND (:codigo IS NULL OR sta.codigo = :codigo) " +
             "  AND (:descricao IS NULL OR sta.descricao LIKE :descricao) ")
     List<StatusProduto> buscar(Long codigo, String descricao);
+
+    StatusProduto findByDescricao(String descricao);
 
 }

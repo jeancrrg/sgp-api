@@ -1,6 +1,6 @@
 package com.nextgen.sgp.controller;
 
-import com.nextgen.sgp.domain.Categoria;
+import com.nextgen.sgp.domain.cadastro.Categoria;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.service.CategoriaService;
 import com.nextgen.sgp.util.LoggerUtil;
@@ -20,7 +20,7 @@ public class CategoriaController {
     @Autowired
     private LoggerUtil loggerUtil;
 
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<?> buscar(@RequestParam(required = false) Long codigo,
                                     @RequestParam (required = false) String nome,
                                     @RequestParam (required = false) Boolean indicadorAtivo,
@@ -33,15 +33,15 @@ public class CategoriaController {
         }
     }
 
-    @PostMapping("")
-    public ResponseEntity<?> salvar(@RequestBody Categoria categoria) {
+    @PostMapping()
+    public ResponseEntity<?> cadastrar(@RequestBody Categoria categoria) {
         try {
-            return ResponseEntity.ok(categoriaService.salvar(categoria));
+            return ResponseEntity.ok(categoriaService.cadastrar(categoria));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(CategoriaController.class, "Erro ao salvar a categoria: " + categoria.getNome() + "!", "salvar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao salvar a categoria: " + categoria.getNome() + "!");
+            loggerUtil.error(CategoriaController.class, "Erro ao cadastrar a categoria: " + categoria.getNome() + "!", "cadastrar", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar a categoria: " + categoria.getNome() + "!");
         }
     }
 
