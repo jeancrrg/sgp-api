@@ -10,7 +10,6 @@ import com.nextgen.sgp.exception.UploadArquivoException;
 import com.nextgen.sgp.repository.ImagemProdutoRepository;
 import com.nextgen.sgp.service.ImagemProdutoService;
 import com.nextgen.sgp.service.UploadArquivoService;
-import com.nextgen.sgp.util.ConverterUtil;
 import com.nextgen.sgp.util.FormatterUtil;
 import com.nextgen.sgp.util.LoggerUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +35,6 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
     private FormatterUtil formatterUtil;
 
     private final String CAMINHO_DIRETORIO_IMAGEM = "imagens/produtos";
-    @Autowired
-    private ConverterUtil converterUtil;
 
     public List<ImagemProduto> buscar(Long codigo, String nome, Long codigoProduto) throws ConverterException, UploadArquivoException, InternalServerErrorException {
         try {
@@ -62,8 +59,7 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
     public List<ImagemProduto> processarImagensProdutoAmazon(List<ImagemProduto> listaImagensProduto) throws ConverterException, UploadArquivoException {
         List<ImagemProduto> listaImagensProdutoAmazon = new ArrayList<>();
         for (ImagemProduto imagemProduto : listaImagensProduto) {
-            String urlImagemAmazon = uploadArquivoService.buscarUrlArquivoAmazon(STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProduto.getCodigoProduto()}/\{imagemProduto.getNomeImagemServidor()}");
-            imagemProduto.setUrlImagem(urlImagemAmazon);
+            imagemProduto.setUrlImagem(uploadArquivoService.buscarUrlArquivoAmazon(STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProduto.getCodigoProduto()}/\{imagemProduto.getNomeImagemServidor()}"));
             listaImagensProdutoAmazon.add(imagemProduto);
         }
         return listaImagensProdutoAmazon;
@@ -105,7 +101,9 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
         }
         String nomeImagemServidor = imagemProdutoSalva.getCodigo() + imagemProdutoSalva.getTipoExtensaoImagem();
         uploadArquivoService.realizarUploadAmazon(new UploadArquivoDTO(nomeImagemServidor, STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProdutoSalva.getCodigoProduto()}/\{nomeImagemServidor}", imagemProdutoSalva.getArquivoBase64()));
-        return atualizarNomeImagemServidor(imagemProdutoSalva, nomeImagemServidor);
+        ImagemProduto imagemProdutoAtualizada = atualizarNomeImagemServidor(imagemProdutoSalva, nomeImagemServidor);
+        imagemProdutoAtualizada.setUrlImagem(uploadArquivoService.buscarUrlArquivoAmazon(STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProdutoSalva.getCodigoProduto()}/\{nomeImagemServidor}"));
+        return imagemProdutoAtualizada;
     }
 
     public void validarCamposImagemProduto(ImagemProduto imagemProduto) throws BadRequestException {
