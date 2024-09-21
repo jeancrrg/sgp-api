@@ -1,6 +1,7 @@
 package com.nextgen.sgp.repository;
 
 import com.nextgen.sgp.domain.cadastro.ImagemProduto;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -16,4 +17,6 @@ public interface ImagemProdutoRepository extends JpaRepository<ImagemProduto, Lo
             "  AND (:codigoProduto IS NULL OR img.codigoProduto = :codigoProduto) ")
     List<ImagemProduto> buscar(Long codigo, String nome, Long codigoProduto);
 
+    @Transactional
+    void deleteByCodigo(Long codigo);
 }

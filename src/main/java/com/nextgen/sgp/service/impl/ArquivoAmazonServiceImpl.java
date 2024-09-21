@@ -138,7 +138,27 @@ public class ArquivoAmazonServiceImpl implements ArquivoAmazonService {
         } catch (NoSuchKeyException  e) {
             throw new ArquivoAmazonException(STR."ERRO: Nenhum arquivo encontrado no diretório: \{caminhoDiretorio} da amazon! - MENSAGEM DO ERRO: \{e.getMessage()}");
         } catch (Exception e) {
-            throw new ArquivoAmazonException(STR."ERRO: Erro ao baixar arquivo no diretório: \{caminhoDiretorio} da amazon! - MENSAGEM DO ERRO: \{e.getMessage()}");
+            throw new ArquivoAmazonException(STR."ERRO: Erro ao baixar o arquivo no diretório: \{caminhoDiretorio} da amazon! - MENSAGEM DO ERRO: \{e.getMessage()}");
+        }
+    }
+
+    public void excluirArquivo(String caminhoDiretorio) throws ArquivoAmazonException {
+        try (S3Client s3Client = S3Client.builder().region(Region.of(REGION_AMAZON)).credentialsProvider(ProfileCredentialsProvider.create()).build()) {
+            if (caminhoDiretorio == null || caminhoDiretorio.isBlank()) {
+                throw new BadRequestException("Caminho do diretório não encontrado para excluir!");
+            }
+
+            // Cria a requisição para deletar o arquivo
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(BUCKET_AMAZON).key(caminhoDiretorio).build();
+
+            // Exclui o arquivo do bucket
+            s3Client.deleteObject(deleteObjectRequest);
+        } catch (BadRequestException e) {
+            throw new ArquivoAmazonException(e.getMessage());
+        } catch (NoSuchKeyException  e) {
+            throw new ArquivoAmazonException(STR."ERRO: Nenhum arquivo encontrado no diretório: \{caminhoDiretorio} da amazon! - MENSAGEM DO ERRO: \{e.getMessage()}");
+        } catch (Exception e) {
+            throw new ArquivoAmazonException(STR."ERRO: Erro ao excluir o arquivo no diretório: \{caminhoDiretorio} da amazon! - MENSAGEM DO ERRO: \{e.getMessage()}");
         }
     }
 

@@ -11,4 +11,6 @@ public interface ArquivoAmazonService {
 
     byte[] baixarArquivo(String caminhoDiretorio) throws ArquivoAmazonException;
 
+    void excluirArquivo(String caminhoDiretorio) throws ArquivoAmazonException;
+
 }

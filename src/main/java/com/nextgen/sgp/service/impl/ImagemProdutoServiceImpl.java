@@ -12,6 +12,7 @@ import com.nextgen.sgp.service.ImagemProdutoService;
 import com.nextgen.sgp.service.ArquivoAmazonService;
 import com.nextgen.sgp.util.FormatterUtil;
 import com.nextgen.sgp.util.LoggerUtil;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +30,7 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
     private ImagemProdutoRepository imagemProdutoRepository;
 
     @Autowired
-    private ArquivoAmazonService uploadArquivoService;
+    private ArquivoAmazonService arquivoAmazonService;
 
     @Autowired
     private LoggerUtil loggerUtil;
@@ -37,7 +38,7 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
     @Autowired
     private FormatterUtil formatterUtil;
 
-    private final String CAMINHO_DIRETORIO_IMAGEM = "imagens/produtos";
+    private final String DIRETORIO_IMAGEM = "imagens/produtos";
 
     public List<ImagemProduto> buscar(Long codigo, String nome, Long codigoProduto) throws ConverterException, ArquivoAmazonException, InternalServerErrorException {
         try {
@@ -62,7 +63,7 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
     public List<ImagemProduto> processarImagensProdutoAmazon(List<ImagemProduto> listaImagensProduto) throws ConverterException, ArquivoAmazonException {
         List<ImagemProduto> listaImagensProdutoAmazon = new ArrayList<>();
         for (ImagemProduto imagemProduto : listaImagensProduto) {
-            imagemProduto.setUrlImagem(uploadArquivoService.buscarUrlArquivoAmazon(STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProduto.getCodigoProduto()}/\{imagemProduto.getNomeImagemServidor()}"));
+            imagemProduto.setUrlImagem(arquivoAmazonService.buscarUrlArquivoAmazon(STR."\{DIRETORIO_IMAGEM}/\{imagemProduto.getCodigoProduto()}/\{imagemProduto.getNomeImagemServidor()}"));
             listaImagensProdutoAmazon.add(imagemProduto);
         }
         return listaImagensProdutoAmazon;
@@ -103,9 +104,9 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
             throw new InternalServerErrorException("Imagem do produto não encontrada cadastro para atualizar o nome da imagem do servidor!");
         }
         String nomeImagemServidor = imagemProdutoSalva.getCodigo() + imagemProdutoSalva.getTipoExtensaoImagem();
-        uploadArquivoService.realizarUploadAmazon(new UploadArquivoDTO(nomeImagemServidor, STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProdutoSalva.getCodigoProduto()}/\{nomeImagemServidor}", imagemProdutoSalva.getArquivoBase64()));
+        arquivoAmazonService.realizarUploadAmazon(new UploadArquivoDTO(nomeImagemServidor, STR."\{DIRETORIO_IMAGEM}/\{imagemProdutoSalva.getCodigoProduto()}/\{nomeImagemServidor}", imagemProdutoSalva.getArquivoBase64()));
         ImagemProduto imagemProdutoAtualizada = atualizarNomeImagemServidor(imagemProdutoSalva, nomeImagemServidor);
-        imagemProdutoAtualizada.setUrlImagem(uploadArquivoService.buscarUrlArquivoAmazon(STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProdutoSalva.getCodigoProduto()}/\{nomeImagemServidor}"));
+        imagemProdutoAtualizada.setUrlImagem(arquivoAmazonService.buscarUrlArquivoAmazon(STR."\{DIRETORIO_IMAGEM}/\{imagemProdutoSalva.getCodigoProduto()}/\{nomeImagemServidor}"));
         return imagemProdutoAtualizada;
     }
 
@@ -157,11 +158,18 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
     }
 
     public byte[] baixarImagem(Long codigoProduto, String nomeImagemServidor) throws BadRequestException, ArquivoAmazonException {
-        if (nomeImagemServidor == null || nomeImagemServidor.isBlank()) {
-            throw new BadRequestException("Nome da imagem não encontrado para baixar!");
+        validarAntesBaixarImagem(codigoProduto, nomeImagemServidor);
+        String caminhoDiretorio = STR."\{DIRETORIO_IMAGEM}/\{codigoProduto}/\{nomeImagemServidor}";
+        return arquivoAmazonService.baixarArquivo(caminhoDiretorio);
+    }
+
+    public void validarAntesBaixarImagem(Long codigoProduto, String nomeImagemServidor) throws BadRequestException {
+        if (codigoProduto == null) {
+            throw new BadRequestException("Código do produto não encontrado para baixar!");
         }
-        String caminhoDiretorio = STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{codigoProduto}/\{nomeImagemServidor}";
-        return uploadArquivoService.baixarArquivo(caminhoDiretorio);
+        if (nomeImagemServidor == null || nomeImagemServidor.isBlank()) {
+            throw new BadRequestException("Nome da imagem do servidor não encontrado para baixar!");
+        }
     }
 
     public HttpHeaders configurarHeaderRetornoImagem(String nomeImagemServidor) throws InternalServerErrorException {
@@ -189,6 +197,34 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
             throw new InternalServerErrorException("Tipo de arquivo de imagem inválido!");
         }
         return mediaType;
+    }
+
+    @Transactional
+    public void excluirImagem(Long codigoProduto, Long codigoImagem, String nomeImagemServidor) throws BadRequestException, ArquivoAmazonException, InternalServerErrorException {
+        try {
+            validarAntesExcluirImagem(codigoProduto, codigoImagem, nomeImagemServidor);
+            String caminhoDiretorio = STR."\{DIRETORIO_IMAGEM}/\{codigoProduto}/\{nomeImagemServidor}";
+            arquivoAmazonService.excluirArquivo(caminhoDiretorio);
+            imagemProdutoRepository.deleteByCodigo(codigoImagem);
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (ArquivoAmazonException e) {
+            throw new ArquivoAmazonException(STR."ERRO: Erro ao excluir a imagem: \{nomeImagemServidor} do produto: \{codigoProduto} na amazon! - MENSAGEM DO ERRO: \{e.getMessage()}");
+        } catch (Exception e) {
+            throw new InternalServerErrorException(STR."ERRO: Erro ao excluir a imagem: \{nomeImagemServidor} do produto: \{codigoProduto}! - MENSAGEM DO ERRO: \{e.getMessage()}");
+        }
+    }
+
+    public void validarAntesExcluirImagem(Long codigoProduto, Long codigoImagem, String nomeImagemServidor) throws BadRequestException {
+        if (codigoProduto == null) {
+            throw new BadRequestException("Código do produto não encontrado para excluir!");
+        }
+        if (codigoImagem == null) {
+            throw new BadRequestException("Código da imagem não encontrado para excluir!");
+        }
+        if (nomeImagemServidor == null || nomeImagemServidor.isBlank()) {
+            throw new BadRequestException("Nome da imagem do servidor não encontrado para excluir!");
+        }
     }
 
 }

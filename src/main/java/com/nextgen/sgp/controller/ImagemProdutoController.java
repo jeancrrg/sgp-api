@@ -54,8 +54,7 @@ public class ImagemProdutoController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<?> baixarImagem(@RequestParam Long codigoProduto,
-                                          @RequestParam String nomeImagemServidor) {
+    public ResponseEntity<?> baixarImagem(@RequestParam Long codigoProduto, @RequestParam String nomeImagemServidor) {
         try {
             byte[] imagem = imagemProdutoService.baixarImagem(codigoProduto, nomeImagemServidor);
             if (imagem == null || imagem.length == 0) {
@@ -66,11 +65,27 @@ public class ImagemProdutoController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (ArquivoAmazonException e) {
-            loggerUtil.error(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto na amazon!", "baixarImagem", e, ImagemProdutoController.class);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto no repositório de imagens! Contacte o suporte.");
+            loggerUtil.error(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto: \{codigoProduto} na amazon!", "baixarImagem", e, ImagemProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto: \{codigoProduto} no repositório de imagens! Contacte o suporte.");
         } catch (Exception e) {
-            loggerUtil.error(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto!", "baixarImagem", e, ImagemProdutoController.class);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto! Contacte o suporte.");
+            loggerUtil.error(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto: \{codigoProduto}!", "baixarImagem", e, ImagemProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto: \{codigoProduto}! Contacte o suporte.");
+        }
+    }
+
+    @DeleteMapping()
+    public ResponseEntity<?> excluirImagem(@RequestParam Long codigoProduto, @RequestParam Long codigoImagem, @RequestParam String nomeImagemServidor) {
+        try {
+            imagemProdutoService.excluirImagem(codigoProduto, codigoImagem, nomeImagemServidor);
+            return ResponseEntity.ok().build();
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (ArquivoAmazonException e) {
+            loggerUtil.error(STR."Erro ao excluir a imagem: \{nomeImagemServidor} do produto: \{codigoProduto} na amazon!", "excluirImagem", e, ImagemProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao excluir a imagem: \{nomeImagemServidor} do produto: \{codigoProduto} no repositório de imagens! Contacte o suporte.");
+        } catch (Exception e) {
+            loggerUtil.error(STR."Erro ao excluir a imagem: \{nomeImagemServidor} do produto: \{codigoProduto}!", "excluirImagem", e, ImagemProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao excluir a imagem: \{nomeImagemServidor} do produto: \{codigoProduto}! Contacte o suporte.");
         }
     }
     

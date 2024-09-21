@@ -19,4 +19,6 @@ public interface ImagemProdutoService {
 
     HttpHeaders configurarHeaderRetornoImagem(String nomeImagemServidor) throws InternalServerErrorException;
 
+    void excluirImagem(Long codigoProduto, Long codigoImagem, String nomeImagemServidor) throws BadRequestException, ArquivoAmazonException, InternalServerErrorException;
+
 }
