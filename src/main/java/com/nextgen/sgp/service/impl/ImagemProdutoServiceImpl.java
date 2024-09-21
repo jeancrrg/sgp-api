@@ -6,13 +6,16 @@ import com.nextgen.sgp.domain.enums.Status;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.exception.ConverterException;
 import com.nextgen.sgp.exception.InternalServerErrorException;
-import com.nextgen.sgp.exception.UploadArquivoException;
+import com.nextgen.sgp.exception.ArquivoAmazonException;
 import com.nextgen.sgp.repository.ImagemProdutoRepository;
 import com.nextgen.sgp.service.ImagemProdutoService;
-import com.nextgen.sgp.service.UploadArquivoService;
+import com.nextgen.sgp.service.ArquivoAmazonService;
 import com.nextgen.sgp.util.FormatterUtil;
 import com.nextgen.sgp.util.LoggerUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,7 +29,7 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
     private ImagemProdutoRepository imagemProdutoRepository;
 
     @Autowired
-    private UploadArquivoService uploadArquivoService;
+    private ArquivoAmazonService uploadArquivoService;
 
     @Autowired
     private LoggerUtil loggerUtil;
@@ -36,7 +39,7 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
 
     private final String CAMINHO_DIRETORIO_IMAGEM = "imagens/produtos";
 
-    public List<ImagemProduto> buscar(Long codigo, String nome, Long codigoProduto) throws ConverterException, UploadArquivoException, InternalServerErrorException {
+    public List<ImagemProduto> buscar(Long codigo, String nome, Long codigoProduto) throws ConverterException, ArquivoAmazonException, InternalServerErrorException {
         try {
             if (nome != null && !nome.isEmpty()) {
                 String nomeFormatado = formatterUtil.removerAcentos(nome);
@@ -49,14 +52,14 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
             return listaImagensProdutos;
         } catch (ConverterException e) {
             throw new ConverterException("ERRO: Erro ao converter o arquivo para buscar as imagens do produto! - MENSAGEM DO ERRO: " + e.getMessage());
-        } catch (UploadArquivoException e) {
-            throw new UploadArquivoException("ERRO: Erro ao buscar as imagens do produto no repositório da amazon! - MENSAGEM DO ERRO: " + e.getMessage());
+        } catch (ArquivoAmazonException e) {
+            throw new ArquivoAmazonException("ERRO: Erro ao buscar as imagens do produto no repositório da amazon! - MENSAGEM DO ERRO: " + e.getMessage());
         } catch (Exception e) {
             throw new InternalServerErrorException("ERRO: Erro ao buscar as imagens do produto! - MENSAGEM DO ERRO: " + e.getMessage());
         }
     }
 
-    public List<ImagemProduto> processarImagensProdutoAmazon(List<ImagemProduto> listaImagensProduto) throws ConverterException, UploadArquivoException {
+    public List<ImagemProduto> processarImagensProdutoAmazon(List<ImagemProduto> listaImagensProduto) throws ConverterException, ArquivoAmazonException {
         List<ImagemProduto> listaImagensProdutoAmazon = new ArrayList<>();
         for (ImagemProduto imagemProduto : listaImagensProduto) {
             imagemProduto.setUrlImagem(uploadArquivoService.buscarUrlArquivoAmazon(STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{imagemProduto.getCodigoProduto()}/\{imagemProduto.getNomeImagemServidor()}"));
@@ -76,7 +79,7 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
             } catch (BadRequestException e) {
                 definirStatusFalhaImagemProduto(imagemProduto, STR."Falha antes de cadastrar a imagem do produto! - \{e.getMessage()}", null, "cadastrar", e);
                 listaImagensProdutoSalvas.add(imagemProduto);
-            } catch (UploadArquivoException e) {
+            } catch (ArquivoAmazonException e) {
                 definirStatusFalhaImagemProduto(imagemProduto, "Erro ao realizar upload da imagem do produto! Contate o suporte!", STR."ERRO: Erro ao realizar upload da imagem: \{imagemProduto.getNome()} para o produto: \{imagemProduto.getCodigoProduto()}! - MENSAGEM DO ERRO: \{e.getMessage()}", "cadastrar", e);
                 listaImagensProdutoSalvas.add(imagemProduto);
             } catch (Exception e) {
@@ -93,7 +96,7 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
         }
     }
 
-    public ImagemProduto processarImagemProduto(ImagemProduto imagemProduto) throws BadRequestException, UploadArquivoException, InternalServerErrorException {
+    public ImagemProduto processarImagemProduto(ImagemProduto imagemProduto) throws BadRequestException, ArquivoAmazonException, InternalServerErrorException {
         validarCamposImagemProduto(imagemProduto);
         ImagemProduto imagemProdutoSalva = salvarImagemProduto(imagemProduto);
         if (imagemProdutoSalva == null) {
@@ -140,7 +143,7 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
         imagemProduto.setStatusCadastro(Status.FALHA);
         imagemProduto.setMensagemErroCadastro(mensagemErroCadastro);
         if (mensagemErroLog != null && !mensagemErroLog.isEmpty()) {
-            loggerUtil.error(ImagemProdutoServiceImpl.class, mensagemErroLog, nomeMetodo, exception);
+            loggerUtil.error(mensagemErroLog, nomeMetodo, exception, ImagemProdutoServiceImpl.class);
         }
     }
 
@@ -151,6 +154,41 @@ public class ImagemProdutoServiceImpl implements ImagemProdutoService {
         } catch (Exception e) {
             throw new InternalServerErrorException(STR."ERRO: Erro ao atualizar o nome da imagem do servidor: \{nomeImagemServidor}! - MENSAGEM DO ERRO: \{e.getMessage()}");
         }
+    }
+
+    public byte[] baixarImagem(Long codigoProduto, String nomeImagemServidor) throws BadRequestException, ArquivoAmazonException {
+        if (nomeImagemServidor == null || nomeImagemServidor.isBlank()) {
+            throw new BadRequestException("Nome da imagem não encontrado para baixar!");
+        }
+        String caminhoDiretorio = STR."\{CAMINHO_DIRETORIO_IMAGEM}/\{codigoProduto}/\{nomeImagemServidor}";
+        return uploadArquivoService.baixarArquivo(caminhoDiretorio);
+    }
+
+    public HttpHeaders configurarHeaderRetornoImagem(String nomeImagemServidor) throws InternalServerErrorException {
+        try {
+            if (nomeImagemServidor == null || nomeImagemServidor.isBlank()) {
+                throw new BadRequestException("Nome da imagem do servidor não encontrado!");
+            }
+            String tipoExtensaoImagem = nomeImagemServidor.substring(nomeImagemServidor.lastIndexOf('.') + 1).toLowerCase();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(definirMediaTypeImagem(tipoExtensaoImagem));
+            headers.setContentDisposition(ContentDisposition.attachment().filename(nomeImagemServidor).build());
+            return headers;
+        } catch (Exception e) {
+            throw new InternalServerErrorException(STR."ERRO: Erro ao configurar o header para retornar o download da imagem: \{nomeImagemServidor}! - MENSAGEM DO ERRO: \{e.getMessage()}");
+        }
+    }
+
+    public MediaType definirMediaTypeImagem(String tipoExtensaoImagem) throws InternalServerErrorException {
+        MediaType mediaType = null;
+        if ("png".equals(tipoExtensaoImagem)) {
+            mediaType = MediaType.IMAGE_PNG;
+        } else if ("jpg".equals(tipoExtensaoImagem)) {
+            mediaType = MediaType.IMAGE_JPEG;
+        } else {
+            throw new InternalServerErrorException("Tipo de arquivo de imagem inválido!");
+        }
+        return mediaType;
     }
 
 }

@@ -20,27 +20,27 @@ public class DepartamentoController {
     @Autowired
     private LoggerUtil loggerUtil;
 
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<?> buscar(@RequestParam(required = false) Long codigo,
                                     @RequestParam (required = false) String nome,
                                     @RequestParam (required = false) Boolean indicadorAtivo) {
         try {
             return ResponseEntity.ok(departamentoService.buscar(codigo, nome, indicadorAtivo));
         } catch (Exception e) {
-            loggerUtil.error(DepartamentoController.class, "Erro ao buscar os departamentos!", "buscar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar os departamentos!");
+            loggerUtil.error("Erro ao buscar os departamentos!", "buscar", e, DepartamentoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar os departamentos! Contacte o suporte.");
         }
     }
 
-    @PostMapping("")
+    @PostMapping()
     public ResponseEntity<?> cadastrar(@RequestBody Departamento departamento) {
         try {
             return ResponseEntity.ok(departamentoService.cadastrar(departamento));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(DepartamentoController.class, "Erro ao cadastrar o departamento: " + departamento.getNome() + "!", "cadastrar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar o departamento: " + departamento.getNome() + "!");
+            loggerUtil.error(STR."Erro ao cadastrar o departamento: \{departamento.getNome()}!", "cadastrar", e, DepartamentoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao cadastrar o departamento: \{departamento.getNome()}! Contacte o suporte.");
         }
     }
 
@@ -51,8 +51,8 @@ public class DepartamentoController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(DepartamentoController.class, "Erro ao atualizar o departamento: " + departamento.getNome() + "!", "atualizar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar o departamento: " + departamento.getNome() + "!");
+            loggerUtil.error(STR."Erro ao atualizar o departamento: \{departamento.getNome()}!", "atualizar", e, DepartamentoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao atualizar o departamento: \{departamento.getCodigo()}! Contacte o suporte.");
         }
     }
 
@@ -64,8 +64,8 @@ public class DepartamentoController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(DepartamentoController.class, "Erro ao inativar o departamento: " + codigo + "!", "inativar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao inativar o departamento: " + codigo + "!");
+            loggerUtil.error(STR."Erro ao inativar o departamento: \{codigo}!", "inativar", e, DepartamentoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao inativar o departamento: \{codigo}! Contacte o suporte.");
         }
     }
 

@@ -3,12 +3,11 @@ package com.nextgen.sgp.controller;
 import com.nextgen.sgp.domain.cadastro.ImagemProduto;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.exception.ConverterException;
-import com.nextgen.sgp.exception.UploadArquivoException;
+import com.nextgen.sgp.exception.ArquivoAmazonException;
 import com.nextgen.sgp.service.ImagemProdutoService;
 import com.nextgen.sgp.util.LoggerUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,34 +23,55 @@ public class ImagemProdutoController {
     @Autowired
     private ImagemProdutoService imagemProdutoService;
 
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<?> buscar(@RequestParam(required = false) Long codigo,
                                     @RequestParam (required = false) String nome,
                                     @RequestParam (required = false) Long codigoProduto) {
         try {
             return ResponseEntity.ok(imagemProdutoService.buscar(codigo, nome, codigoProduto));
         } catch (ConverterException e) {
-            loggerUtil.error(ImagemProdutoController.class, "Erro ao converter ao converter o arquivo na busca de imagens do produto!", "buscar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao converter ao converter o arquivo na busca de imagens do produto!");
-        } catch (UploadArquivoException e) {
-            loggerUtil.error(ImagemProdutoController.class, "Erro ao buscar as imagens do produto na amazon!", "buscar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as imagens do produto no repositório de imagens!");
+            loggerUtil.error("Erro ao converter ao converter o arquivo na busca de imagens do produto!", "buscar", e, ImagemProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao converter ao converter o arquivo na busca de imagens do produto! Contacte o suporte.");
+        } catch (ArquivoAmazonException e) {
+            loggerUtil.error("Erro ao buscar as imagens do produto na amazon!", "buscar", e, ImagemProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as imagens do produto no repositório de imagens! Contacte o suporte.");
         } catch (Exception e) {
-            loggerUtil.error(ImagemProdutoController.class, "Erro ao buscar as imagens do produto!", "buscar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as imagens do produto!");
+            loggerUtil.error("Erro ao buscar as imagens do produto!", "buscar", e,  ImagemProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as imagens do produto! Contacte o suporte.");
         }
     }
 
-    @PostMapping("")
+    @PostMapping()
     public ResponseEntity<?> cadastrar(@RequestBody List<ImagemProduto> listaImagensProduto) {
         try {
             return ResponseEntity.ok(imagemProdutoService.cadastrar(listaImagensProduto));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(ImagemProdutoController.class, "Erro ao cadastrar as imagens do produto!", "cadastrar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar as imagens do produto! Contate o suporte.");
+            loggerUtil.error("Erro ao cadastrar as imagens do produto!", "cadastrar", e, ImagemProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar as imagens do produto! Contacte o suporte.");
         }
     }
 
+    @GetMapping("/download")
+    public ResponseEntity<?> baixarImagem(@RequestParam Long codigoProduto,
+                                          @RequestParam String nomeImagemServidor) {
+        try {
+            byte[] imagem = imagemProdutoService.baixarImagem(codigoProduto, nomeImagemServidor);
+            if (imagem == null || imagem.length == 0) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(STR."Imagem: \{nomeImagemServidor} não encontrada para o produto: \{codigoProduto}");
+            }
+            HttpHeaders headers = imagemProdutoService.configurarHeaderRetornoImagem(nomeImagemServidor);
+            return ResponseEntity.ok().headers(headers).body(imagem);
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (ArquivoAmazonException e) {
+            loggerUtil.error(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto na amazon!", "baixarImagem", e, ImagemProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto no repositório de imagens! Contacte o suporte.");
+        } catch (Exception e) {
+            loggerUtil.error(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto!", "baixarImagem", e, ImagemProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao realizar o download da imagem: \{nomeImagemServidor} do produto! Contacte o suporte.");
+        }
+    }
+    
 }

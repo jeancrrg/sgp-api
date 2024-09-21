@@ -87,7 +87,7 @@ public class MarcaServiceImpl implements MarcaService {
             }
             Marca marcaEncontrada = marcaRepository.findByCodigo(codigo);
             if (marcaEncontrada == null) {
-                throw new BadRequestException("Marca não encontrada para inativar!");
+                throw new BadRequestException(STR."Marca: \{codigo} não encontrada para inativar!");
             }
             marcaEncontrada.setIndicadorAtivo(Boolean.FALSE);
             marcaEncontrada.setDataUltimaAlteracao(LocalDateTime.now());
@@ -95,7 +95,7 @@ public class MarcaServiceImpl implements MarcaService {
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
-            throw new InternalServerErrorException("ERRO: Erro ao inativar a marca! - MENSAGEM DO ERRO: " + e.getMessage());
+            throw new InternalServerErrorException(STR."ERRO: Erro ao inativar a marca! - MENSAGEM DO ERRO: \{e.getMessage()}");
         }
     }
 

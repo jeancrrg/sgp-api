@@ -18,14 +18,14 @@ public class StatusProdutoController {
     @Autowired
     private LoggerUtil loggerUtil;
 
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<?> buscar(@RequestParam(required = false) Long codigo,
                                     @RequestParam (required = false) String descricao) {
         try {
             return ResponseEntity.ok(statusProdutoService.buscar(codigo, descricao));
         } catch (Exception e) {
-            loggerUtil.error(StatusProdutoController.class, "Erro ao buscar os status dos produtos!", "buscar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar os status dos produtos!");
+            loggerUtil.error("Erro ao buscar os status dos produtos!", "buscar", e, StatusProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar os status dos produtos! Contacte o suporte!");
         }
     }
 

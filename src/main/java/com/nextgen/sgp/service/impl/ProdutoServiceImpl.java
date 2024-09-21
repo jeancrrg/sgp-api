@@ -35,13 +35,13 @@ public class ProdutoServiceImpl implements ProdutoService {
     @Autowired
     private FormatterUtil formatterUtil;
 
-    public List<Produto> buscar(Long codigo, String nome, Integer codigoTipoProduto, Integer codigoStatusProduto, Boolean indicadorSemEstoque) throws InternalServerErrorException {
+    public List<Produto> buscar(Long codigo, String nome, Integer codigoTipoProduto, Integer codigoStatusProduto, Boolean indicadorSemEstoque, Long codigoMarca, Long codigoDepartamento, Long codigoCategoria) throws InternalServerErrorException {
         try {
             if (nome != null && !nome.isEmpty()) {
                 String nomeFormatado = formatterUtil.removerAcentos(nome);
                 nome = "%" + nomeFormatado.toUpperCase().trim() + "%";
             }
-            return produtoRepository.buscar(codigo, nome, codigoTipoProduto, codigoStatusProduto, (Boolean.TRUE.equals(indicadorSemEstoque) ? 0 : null));
+            return produtoRepository.buscar(codigo, nome, codigoTipoProduto, codigoStatusProduto, (Boolean.TRUE.equals(indicadorSemEstoque) ? 0 : null), codigoMarca, codigoDepartamento, codigoCategoria);
         } catch (Exception e) {
             throw new InternalServerErrorException("ERRO: Erro ao buscar os produtos! - MENSAGEM DO ERRO: " + e.getMessage());
         }
@@ -143,13 +143,13 @@ public class ProdutoServiceImpl implements ProdutoService {
 
     public Produto atualizar(Produto produto) throws BadRequestException, InternalServerErrorException {
         try {
-            if (!produtoRepository.existsByCodigo(produto.getCodigo())) {
-                throw new BadRequestException("Produto não encontrado para atualizar!");
-            }
             validarDadosProduto(produto);
-            formatarCamposProduto(produto);
-            produto.setDataUltimaAlteracao(LocalDateTime.now());
-            return produtoRepository.save(produto);
+            Produto produtoEncontrado = produtoRepository.findByCodigo(produto.getCodigo());
+            if (produtoEncontrado == null) {
+                throw new BadRequestException("Produto não encontrado cadastro para atualizar!");
+            }
+            produtoEncontrado.setDataUltimaAlteracao(LocalDateTime.now());
+            return produtoRepository.save(produtoEncontrado);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {

@@ -15,8 +15,11 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
             "  AND (:nome IS NULL OR pro.nome LIKE :nome) " +
             "  AND (:codigoTipoProduto IS NULL OR pro.statusProduto.codigo = :codigoTipoProduto) " +
             "  AND (:codigoStatusProduto IS NULL OR pro.tipoProduto.codigo = :codigoStatusProduto) " +
-            "  AND (:quantidadeEstoque IS NULL OR pro.quantidadeEstoque <= :quantidadeEstoque) ")
-    List<Produto> buscar(Long codigo, String nome, Integer codigoTipoProduto, Integer codigoStatusProduto, Integer quantidadeEstoque);
+            "  AND (:quantidadeEstoque IS NULL OR pro.quantidadeEstoque <= :quantidadeEstoque) " +
+            "  AND (:codigoMarca IS NULL OR pro.marca.codigo = :codigoMarca) " +
+            "  AND (:codigoDepartamento IS NULL OR pro.departamento.codigo = :codigoDepartamento)" +
+            "  AND (:codigoCategoria IS NULL OR pro.categoria.codigo = :codigoCategoria) ")
+    List<Produto> buscar(Long codigo, String nome, Integer codigoTipoProduto, Integer codigoStatusProduto, Integer quantidadeEstoque, Long codigoMarca, Long codigoDepartamento, Long codigoCategoria);
 
     Boolean existsByCodigoBarrasEAN(String codigoBarrasEAN);
 

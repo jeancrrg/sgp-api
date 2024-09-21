@@ -20,29 +20,29 @@ public class ProdutoController {
     @Autowired
     private LoggerUtil loggerUtil;
 
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<?> buscar(@RequestParam(required = false) Long codigo,
                                     @RequestParam (required = false) String nome,
                                     @RequestParam (required = false) Integer codigoTipoProduto,
                                     @RequestParam (required = false) Integer codigoStatusProduto,
                                     @RequestParam (required = false) Boolean indicadorSemEstoque) {
         try {
-            return ResponseEntity.ok(produtoService.buscar(codigo, nome, codigoTipoProduto, codigoStatusProduto, indicadorSemEstoque));
+            return ResponseEntity.ok(produtoService.buscar(codigo, nome, codigoTipoProduto, codigoStatusProduto, indicadorSemEstoque, null, null, null));
         } catch (Exception e) {
-            loggerUtil.error(ProdutoController.class, "Erro ao buscar os produtos!", "buscar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar os produtos!");
+            loggerUtil.error("Erro ao buscar os produtos!", "buscar", e, ProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar os produtos! Contacte o suporte.");
         }
     }
 
-    @PostMapping("")
+    @PostMapping()
     public ResponseEntity<?> cadastrar(@RequestBody Produto produto) {
         try {
             return ResponseEntity.ok(produtoService.cadastrar(produto));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(ProdutoController.class, "Erro ao cadastrar o produto: " + produto.getNome() + "!", "cadastrar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar o produto: " + produto.getNome() + "!");
+            loggerUtil.error(STR."Erro ao cadastrar o produto: \{produto.getNome()}!", "cadastrar", e, ProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao cadastrar o produto: \{produto.getNome()}! Contacte o suporte.");
         }
     }
 
@@ -53,8 +53,8 @@ public class ProdutoController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(ProdutoController.class, "Erro ao atualizar o produto: " + produto.getCodigo() + "!", "atualizar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar o produto: " + produto.getCodigo() + "!");
+            loggerUtil.error(STR."Erro ao atualizar o produto: \{produto.getCodigo()}!", "atualizar", e, ProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao atualizar o produto: \{produto.getCodigo()}! Contacte o suporte.");
         }
     }
 
@@ -66,8 +66,8 @@ public class ProdutoController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(ProdutoController.class, "Erro ao inativar o produto: " + codigo + "!", "inativar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao inativar o produto: " + codigo + "!");
+            loggerUtil.error(STR."Erro ao inativar o produto: \{codigo}!", "inativar", e, ProdutoController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao inativar o produto: \{codigo}! Contacte o suporte.");
         }
     }
 

@@ -28,8 +28,8 @@ public class CategoriaController {
         try {
             return ResponseEntity.ok(categoriaService.buscar(codigo, nome, indicadorAtivo, codigocategoria));
         } catch (Exception e) {
-            loggerUtil.error(CategoriaController.class, "Erro ao buscar as categorias!", "buscar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as categorias!");
+            loggerUtil.error("Erro ao buscar as categorias!", "buscar", e, CategoriaController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as categorias! Contacte o suporte.");
         }
     }
 
@@ -40,8 +40,8 @@ public class CategoriaController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(CategoriaController.class, "Erro ao cadastrar a categoria: " + categoria.getNome() + "!", "cadastrar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar a categoria: " + categoria.getNome() + "!");
+            loggerUtil.error(STR."Erro ao cadastrar a categoria: \{categoria.getNome()}!", "cadastrar", e, CategoriaController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao cadastrar a categoria: \{categoria.getNome()}! Contacte o suporte.");
         }
     }
 
@@ -52,8 +52,8 @@ public class CategoriaController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(CategoriaController.class, "Erro ao atualizar a categoria: " + categoria.getNome() + "!", "atualizar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar a categoria: " + categoria.getNome() + "!");
+            loggerUtil.error(STR."Erro ao atualizar a categoria: \{categoria.getNome()}!", "atualizar", e, CategoriaController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao atualizar a categoria: \{categoria.getCodigo()}! Contacte o suporte.");
         }
     }
 
@@ -65,8 +65,8 @@ public class CategoriaController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(CategoriaController.class, "Erro ao inativar a categoria: " + codigo + "!", "inativar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao inativar a categoria: " + codigo + "!");
+            loggerUtil.error(STR."Erro ao inativar a categoria: \{codigo}!", "inativar", e, CategoriaController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao inativar a categoria: \{codigo}! Contacte o suporte.");
         }
     }
 

@@ -20,27 +20,27 @@ public class MarcaController {
     @Autowired
     private LoggerUtil loggerUtil;
 
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<?> buscar(@RequestParam (required = false) Long codigo,
                                     @RequestParam (required = false) String nome,
                                     @RequestParam (required = false) Boolean indicadorAtivo) {
         try {
             return ResponseEntity.ok(marcaService.buscar(codigo, nome, indicadorAtivo));
         } catch (Exception e) {
-            loggerUtil.error(MarcaController.class, "Erro ao buscar as marcas!", "buscar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as marcas!");
+            loggerUtil.error("Erro ao buscar as marcas!", "buscar", e, MarcaController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as marcas! Contacte o suporte.");
         }
     }
 
-    @PostMapping("")
+    @PostMapping()
     public ResponseEntity<?> cadastrar(@RequestBody Marca marca) {
         try {
             return ResponseEntity.ok(marcaService.cadastrar(marca));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(MarcaController.class, "Erro ao cadastrar a marca: " + marca.getNome() + "!", "cadastrar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar a marca: " + marca.getNome() + "!");
+            loggerUtil.error(STR."Erro ao cadastrar a marca: \{marca.getNome()}!", "cadastrar", e, MarcaController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao cadastrar a marca: \{marca.getNome()}! Contacte o suporte.");
         }
     }
 
@@ -51,8 +51,8 @@ public class MarcaController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(MarcaController.class, "Erro ao atualizar a marca: " + marca.getNome() + "!", "atualizar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar a marca: " + marca.getNome() + "!");
+            loggerUtil.error(STR."Erro ao atualizar a marca: \{marca.getNome()}!", "atualizar", e, MarcaController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao atualizar a marca: \{marca.getCodigo()}! Contacte o suporte.");
         }
     }
 
@@ -64,8 +64,8 @@ public class MarcaController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            loggerUtil.error(MarcaController.class, "Erro ao inativar a marca: " + codigo + "!", "inativar", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao inativar a marca: " + codigo + "!");
+            loggerUtil.error(STR."Erro ao inativar a marca: \{codigo}!", "inativar", e, MarcaController.class);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(STR."Erro ao inativar a marca: \{codigo}! Contacte o suporte.");
         }
     }
 
