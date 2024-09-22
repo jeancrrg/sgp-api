@@ -19,8 +19,6 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
     Categoria findByCodigo(Long codigo);
 
-    Boolean existsByCodigo(Long codigo);
-
     Boolean existsByNome(String nome);
 
     @Query("SELECT ctg " +

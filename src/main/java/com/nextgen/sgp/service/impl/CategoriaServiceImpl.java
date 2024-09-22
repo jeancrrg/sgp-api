@@ -21,13 +21,13 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Autowired
     private FormatterUtil formatterUtil;
 
-    public List<Categoria> buscar(Long codigo, String nome, Boolean indicadorAtivo, Long codigocategoria) throws InternalServerErrorException {
+    public List<Categoria> buscar(Long codigo, String nome, Boolean indicadorAtivo, Long codigoDepartamento) throws InternalServerErrorException {
         try {
             if (nome != null) {
                 String nomeFormatado = formatterUtil.removerAcentos(nome);
                 nome = "%" + nomeFormatado.toUpperCase().trim() + "%";
             }
-            return categoriaRepository.buscar(codigo, nome, indicadorAtivo, codigocategoria);
+            return categoriaRepository.buscar(codigo, nome, indicadorAtivo, codigoDepartamento);
         } catch (Exception e) {
             throw new InternalServerErrorException("ERRO: Erro ao buscar as categorias! - MENSAGEM DO ERRO: " + e.getMessage());
         }
@@ -69,13 +69,16 @@ public class CategoriaServiceImpl implements CategoriaService {
     public Categoria atualizar(Categoria categoria) throws BadRequestException, InternalServerErrorException {
         try {
             validarDadosCategoria(categoria);
-            if (!categoriaRepository.existsByCodigo(categoria.getCodigo())) {
+            Categoria categoriaEncontrada = categoriaRepository.findByCodigo(categoria.getCodigo());
+            if (categoriaEncontrada == null) {
                 throw new BadRequestException("Categoria não encontrada para atualizar!");
             }
             String nomeCategoriaFormatado = formatterUtil.removerAcentos(categoria.getNome());
-            categoria.setNome(nomeCategoriaFormatado.toUpperCase().trim());
-            categoria.setDataUltimaAlteracao(LocalDateTime.now());
-            return categoriaRepository.save(categoria);
+            categoriaEncontrada.setNome(nomeCategoriaFormatado.toUpperCase().trim());
+            categoriaEncontrada.setDepartamento(categoria.getDepartamento());
+            categoriaEncontrada.setIndicadorAtivo(categoria.getIndicadorAtivo());
+            categoriaEncontrada.setDataUltimaAlteracao(LocalDateTime.now());
+            return categoriaRepository.save(categoriaEncontrada);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {

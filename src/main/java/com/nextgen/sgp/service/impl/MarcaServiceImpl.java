@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -66,13 +67,15 @@ public class MarcaServiceImpl implements MarcaService {
     public Marca atualizar(Marca marca) throws BadRequestException, InternalServerErrorException {
         try {
             validarDadosMarca(marca);
-            if (!marcaRepository.existsByCodigo(marca.getCodigo())) {
+            Marca marcaEncontrada = marcaRepository.findByCodigo(marca.getCodigo());
+            if (marcaEncontrada == null) {
                 throw new BadRequestException("Marca não encontrada para atualizar!");
             }
             String nomeMarcaFormatado = formatterUtil.removerAcentos(marca.getNome());
-            marca.setNome(nomeMarcaFormatado.toUpperCase().trim());
-            marca.setDataUltimaAlteracao(LocalDateTime.now());
-            return marcaRepository.save(marca);
+            marcaEncontrada.setNome(nomeMarcaFormatado.toUpperCase().trim());
+            marcaEncontrada.setIndicadorAtivo(marca.getIndicadorAtivo());
+            marcaEncontrada.setDataUltimaAlteracao(LocalDateTime.now());
+            return marcaRepository.save(marcaEncontrada);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {

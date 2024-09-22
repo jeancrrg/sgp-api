@@ -113,18 +113,18 @@ public class ProdutoServiceImpl implements ProdutoService {
             if (produto == null) {
                 throw new BadRequestException("Produto não encontrado!");
             }
-            Marca marcaEncontrada = marcaService.buscarAtiva(produto.getCategoria() != null ? produto.getCategoria().getCodigo() : null);
+            Marca marcaEncontrada = marcaService.buscarAtiva(produto.getMarca().getCodigo());
             if (marcaEncontrada == null) {
                 throw new BadRequestException("Marca do produto não possui cadastro ou está inativa!");
             }
-            Categoria categoriaEncontrada = categoriaService.buscarAtiva(produto.getDepartamento() != null ? produto.getDepartamento().getCodigo() : null);
+            Categoria categoriaEncontrada = categoriaService.buscarAtiva(produto.getCategoria().getCodigo());
             if (categoriaEncontrada == null) {
                 throw new BadRequestException("Categoria do produto não possui cadastro ou está inativa!");
             }
             if (categoriaEncontrada.getDepartamento() == null) {
                 throw new BadRequestException("Nenhum departamento encontrado associação a essa categoria!");
             }
-            if (!Objects.equals(categoriaEncontrada.getDepartamento().getCodigo(), produto.getDepartamento() != null ? produto.getDepartamento().getCodigo() : null)) {
+            if (!Objects.equals(categoriaEncontrada.getDepartamento().getCodigo(), produto.getDepartamento().getCodigo())) {
                 throw new BadRequestException("Esse departamento não está associado a essa categoria!");
             }
         } catch (BadRequestException e) {
@@ -148,13 +148,27 @@ public class ProdutoServiceImpl implements ProdutoService {
             if (produtoEncontrado == null) {
                 throw new BadRequestException("Produto não encontrado cadastro para atualizar!");
             }
-            produtoEncontrado.setDataUltimaAlteracao(LocalDateTime.now());
+            atribuirDadosProduto(produtoEncontrado, produto);
             return produtoRepository.save(produtoEncontrado);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
-            throw new InternalServerErrorException("ERRO: Erro ao atualizar o produto! - MENSAGEM DO ERRO: " + e.getMessage());
+            throw new InternalServerErrorException(STR."ERRO: Erro ao atualizar o produto! - MENSAGEM DO ERRO: \{e.getMessage()}");
         }
+    }
+
+    public void atribuirDadosProduto(Produto produtoEncontrado, Produto produto) {
+        produtoEncontrado.setNome(produto.getNome());
+        produtoEncontrado.setCodigoBarrasEAN(produto.getCodigoBarrasEAN());
+        produtoEncontrado.setStatusProduto(produto.getStatusProduto());
+        produtoEncontrado.setTipoProduto(produto.getTipoProduto());
+        produtoEncontrado.setPreco(produto.getPreco());
+        produtoEncontrado.setQuantidadeEstoque(produto.getQuantidadeEstoque());
+        produtoEncontrado.setMarca(produto.getMarca());
+        produtoEncontrado.setDepartamento(produto.getDepartamento());
+        produtoEncontrado.setCategoria(produto.getCategoria());
+        produtoEncontrado.setDescricaoDetalhada(produto.getDescricaoDetalhada());
+        produtoEncontrado.setDataUltimaAlteracao(LocalDateTime.now());
     }
 
     public void inativar(Long codigo) throws BadRequestException, InternalServerErrorException {

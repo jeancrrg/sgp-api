@@ -18,8 +18,6 @@ public interface MarcaRepository extends JpaRepository<Marca, Long> {
 
     Marca findByCodigo(Long codigo);
 
-    Boolean existsByCodigo(Long codigo);
-
     Boolean existsByNome(String nome);
 
     @Query("SELECT mrc " +

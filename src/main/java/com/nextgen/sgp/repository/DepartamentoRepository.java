@@ -18,8 +18,6 @@ public interface DepartamentoRepository extends JpaRepository<Departamento, Long
 
     Departamento findByCodigo(Long codigo);
 
-    Boolean existsByCodigo(Long codigo);
-
     Boolean existsByNome(String nome);
 
 }

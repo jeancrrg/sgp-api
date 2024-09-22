@@ -24,9 +24,9 @@ public class CategoriaController {
     public ResponseEntity<?> buscar(@RequestParam(required = false) Long codigo,
                                     @RequestParam (required = false) String nome,
                                     @RequestParam (required = false) Boolean indicadorAtivo,
-                                    @RequestParam (required = false) Long codigocategoria) {
+                                    @RequestParam (required = false) Long codigoDepartamento) {
         try {
-            return ResponseEntity.ok(categoriaService.buscar(codigo, nome, indicadorAtivo, codigocategoria));
+            return ResponseEntity.ok(categoriaService.buscar(codigo, nome, indicadorAtivo, codigoDepartamento));
         } catch (Exception e) {
             loggerUtil.error("Erro ao buscar as categorias!", "buscar", e, CategoriaController.class);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar as categorias! Contacte o suporte.");

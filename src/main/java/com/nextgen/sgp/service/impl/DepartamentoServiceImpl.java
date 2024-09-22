@@ -66,13 +66,15 @@ public class DepartamentoServiceImpl implements DepartamentoService {
     public Departamento atualizar(Departamento departamento) throws BadRequestException, InternalServerErrorException {
         try {
             validarDadosDepartamento(departamento);
-            if (!departamentoRepository.existsByCodigo(departamento.getCodigo())) {
+            Departamento departamentoEncontrado = departamentoRepository.findByCodigo(departamento.getCodigo());
+            if (departamentoEncontrado == null) {
                 throw new BadRequestException("Departamento não encontrado para atualizar!");
             }
             String nomeDepartamentoFormatado = formatterUtil.removerAcentos(departamento.getNome());
-            departamento.setNome(nomeDepartamentoFormatado.toUpperCase().trim());
-            departamento.setDataUltimaAlteracao(LocalDateTime.now());
-            return departamentoRepository.save(departamento);
+            departamentoEncontrado.setNome(nomeDepartamentoFormatado.toUpperCase().trim());
+            departamentoEncontrado.setIndicadorAtivo(departamento.getIndicadorAtivo());
+            departamentoEncontrado.setDataUltimaAlteracao(LocalDateTime.now());
+            return departamentoRepository.save(departamentoEncontrado);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
