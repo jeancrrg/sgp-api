@@ -1,6 +1,7 @@
 package com.nextgen.sgp.service.impl;
 
 import com.nextgen.sgp.domain.cadastro.Categoria;
+import com.nextgen.sgp.domain.cadastro.Produto;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.exception.InternalServerErrorException;
 import com.nextgen.sgp.repository.CategoriaRepository;
@@ -95,6 +96,7 @@ public class CategoriaServiceImpl implements CategoriaService {
             if (categoriaEncontrada == null) {
                 throw new BadRequestException("Categoria não encontrada para inativar!");
             }
+            validarPossuiProdutoAssociadoCategoria(codigo);
             categoriaEncontrada.setIndicadorAtivo(Boolean.FALSE);
             categoriaEncontrada.setDataUltimaAlteracao(LocalDateTime.now());
             categoriaRepository.save(categoriaEncontrada);
@@ -102,6 +104,19 @@ public class CategoriaServiceImpl implements CategoriaService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             throw new InternalServerErrorException("ERRO: Erro ao inativar a categoria! - MENSAGEM DO ERRO: " + e.getMessage());
+        }
+    }
+
+    public void validarPossuiProdutoAssociadoCategoria(Long codigoCategoria) throws BadRequestException, InternalServerErrorException {
+        try {
+            List<Produto> listaProdutosAssociadosCategoria = categoriaRepository.buscarProdutosAssociadoCategoria(codigoCategoria);
+            if (listaProdutosAssociadosCategoria != null && !listaProdutosAssociadosCategoria.isEmpty()) {
+                throw new BadRequestException("Não é possível inativar essa categoria pois possui produto associado! Inative o produto para inativar essa categoria.");
+            }
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            throw new InternalServerErrorException(STR."ERRO: Erro ao validar se possui produto associado a categoria: \{codigoCategoria}! - MENSAGEM DO ERRO: \{e.getMessage()}");
         }
     }
 

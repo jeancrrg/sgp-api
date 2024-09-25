@@ -7,14 +7,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoggerUtil {
 
-    public void info(String mensagem, String nomeMetodo, Class<?> classe) {
+    public void info(String chaveLog, String mensagem, String nomeMetodo, Class<?> classe) {
         Logger LOGGER = LoggerFactory.getLogger(classe);
-        LOGGER.info(STR."MÉTODO: \{nomeMetodo} - MENSAGEM: \{mensagem}");
+        LOGGER.info(STR."[\{chaveLog}] - MÉTODO: \{nomeMetodo} - MENSAGEM: \{mensagem}");
     }
 
-    public void debug(String mensagemErro, String nomeMetodo, Exception excecao, Class<?> classe) {
+    public void debug(String chaveLog, String mensagemErro, String nomeMetodo, Exception excecao, Class<?> classe) {
         Logger LOGGER = LoggerFactory.getLogger(classe);
-        LOGGER.debug(STR."ERRO: \{mensagemErro} - MÉTODO DO ERRO: \{nomeMetodo} - TIPO DO ERRO: \{excecao.getClass().getSimpleName()} - MENSAGEM DO ERRO: \{excecao.getMessage()}");
+        LOGGER.debug(STR."[\{chaveLog}] - ERRO: \{mensagemErro} - MÉTODO DO ERRO: \{nomeMetodo} - TIPO DO ERRO: \{excecao.getClass().getSimpleName()} - MENSAGEM DO ERRO: \{excecao.getMessage()}");
     }
 
     public void error(String mensagemErro, String nomeMetodo, Exception excecao, Class<?> classe) {

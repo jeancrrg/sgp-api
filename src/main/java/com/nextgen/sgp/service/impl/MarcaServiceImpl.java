@@ -1,6 +1,7 @@
 package com.nextgen.sgp.service.impl;
 
 import com.nextgen.sgp.domain.cadastro.Marca;
+import com.nextgen.sgp.domain.cadastro.Produto;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.exception.InternalServerErrorException;
 import com.nextgen.sgp.repository.MarcaRepository;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -92,6 +92,7 @@ public class MarcaServiceImpl implements MarcaService {
             if (marcaEncontrada == null) {
                 throw new BadRequestException(STR."Marca: \{codigo} não encontrada para inativar!");
             }
+            validarPossuiProdutoAssociadoMarca(codigo);
             marcaEncontrada.setIndicadorAtivo(Boolean.FALSE);
             marcaEncontrada.setDataUltimaAlteracao(LocalDateTime.now());
             marcaRepository.save(marcaEncontrada);
@@ -99,6 +100,19 @@ public class MarcaServiceImpl implements MarcaService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             throw new InternalServerErrorException(STR."ERRO: Erro ao inativar a marca! - MENSAGEM DO ERRO: \{e.getMessage()}");
+        }
+    }
+
+    public void validarPossuiProdutoAssociadoMarca(Long codigoMarca) throws BadRequestException, InternalServerErrorException {
+        try {
+            List<Produto> listaProdutosAssociadosMarca = marcaRepository.buscarProdutosAssociadoMarca(codigoMarca);
+            if (listaProdutosAssociadosMarca != null && !listaProdutosAssociadosMarca.isEmpty()) {
+                throw new BadRequestException("Não é possível inativar essa marca pois possui produto associado! Inative o produto para inativar essa marca.");
+            }
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            throw new InternalServerErrorException(STR."ERRO: Erro ao validar se possui produto associado a marca: \{codigoMarca}! - MENSAGEM DO ERRO: \{e.getMessage()}");
         }
     }
 

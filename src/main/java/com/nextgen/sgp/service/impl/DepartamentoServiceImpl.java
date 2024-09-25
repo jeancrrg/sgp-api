@@ -1,6 +1,7 @@
 package com.nextgen.sgp.service.impl;
 
 import com.nextgen.sgp.domain.cadastro.Departamento;
+import com.nextgen.sgp.domain.cadastro.Produto;
 import com.nextgen.sgp.exception.BadRequestException;
 import com.nextgen.sgp.exception.InternalServerErrorException;
 import com.nextgen.sgp.repository.DepartamentoRepository;
@@ -91,6 +92,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
             if (departamentoEncontrado == null) {
                 throw new BadRequestException("Departamento não encontrado para inativar!");
             }
+            validarPossuiProdutoAssociadoDepartamento(codigo);
             departamentoEncontrado.setIndicadorAtivo(Boolean.FALSE);
             departamentoEncontrado.setDataUltimaAlteracao(LocalDateTime.now());
             departamentoRepository.save(departamentoEncontrado);
@@ -98,6 +100,19 @@ public class DepartamentoServiceImpl implements DepartamentoService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             throw new InternalServerErrorException("ERRO: Erro ao inativar o departamento! - MENSAGEM DO ERRO: " + e.getMessage());
+        }
+    }
+
+    public void validarPossuiProdutoAssociadoDepartamento(Long codigoDepartamento) throws BadRequestException, InternalServerErrorException {
+        try {
+            List<Produto> listaProdutosAssociadosDepartamento = departamentoRepository.buscarProdutosAssociadoDepartamento(codigoDepartamento);
+            if (listaProdutosAssociadosDepartamento != null && !listaProdutosAssociadosDepartamento.isEmpty()) {
+                throw new BadRequestException("Não é possível inativar esse departamento pois possui produto associado! Inative o produto para inativar esse departamento.");
+            }
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            throw new InternalServerErrorException(STR."ERRO: Erro ao validar se possui produto associado ao departamento: \{codigoDepartamento}! - MENSAGEM DO ERRO: \{e.getMessage()}");
         }
     }
 
